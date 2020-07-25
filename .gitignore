@@ -1,0 +1,9 @@
+bin/
+obj/
+/packages/
+/.idea
+.DS_Store
+
+*.csv
+
+*.user
