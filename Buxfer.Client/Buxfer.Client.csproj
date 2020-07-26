@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>0.9.0</PackageVersion>
+        <PackageVersion></PackageVersion>
         <Title>Buxfer.Client</Title>
         <Authors>andrey.leskov@gmail.com</Authors>
         <PackageProjectUrl>https://github.com/andreyleskov/Buxfer</PackageProjectUrl>
