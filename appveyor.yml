@@ -19,8 +19,8 @@ install:
 build_script:
 - sh: |
     #cd ./src
-    dotnet build Buxfer.sln /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet /l:"/opt/appveyor/build-agent/Appveyor.MSBuildLogger.dll"
-    dotnet pack Buxfer.sln  /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet --include-symbols --include-source --no-build /l:"/opt/appveyor/build-agent/Appveyor.MSBuildLogger.dll"
+    dotnet build Buxfer.sln /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet
+    dotnet pack Buxfer.sln  /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet --include-symbols --include-source --no-build
     #cd ..
 test_script:
 - sh: |
