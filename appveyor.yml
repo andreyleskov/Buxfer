@@ -5,7 +5,7 @@ branches:
 image: Ubuntu
 install:
 - sh: |
-    . ./build/git_versioning.sh
+    . ./git_versioning.sh
 
     export APP_VERSION=${version}
     export FILE_VERSION=${fileVersion}
@@ -18,10 +18,10 @@ install:
 - ps: Update-AppveyorBuild -Version $env:APP_VERSION
 build_script:
 - sh: |
-    cd ./src
+    #cd ./src
     dotnet build Buxfer.sln /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet /l:"/opt/appveyor/build-agent/Appveyor.MSBuildLogger.dll"
     dotnet pack Buxfer.sln  /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet --include-symbols --include-source --no-build /l:"/opt/appveyor/build-agent/Appveyor.MSBuildLogger.dll"
-    cd ..
+    #cd ..
 test_script:
 - sh: |
     #curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
