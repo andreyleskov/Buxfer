@@ -2,6 +2,15 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+        <PackageVersion>0.9.0</PackageVersion>
+        <Title>Buxfer.Client</Title>
+        <Authors>andrey.leskov@gmail.com</Authors>
+        <PackageProjectUrl>https://github.com/andreyleskov/Buxfer</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/andreyleskov/Buxfer/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageIconUrl>https://github.com/andreyleskov/Buxfer/raw/master/buxfer.png</PackageIconUrl>
+        <RepositoryUrl>https://github.com/andreyleskov/Buxfer</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>buxfer</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
