@@ -34,4 +34,4 @@ artifacts:
   name: Symbols
 deploy:
   - provider: Environment
-    name: MyGet development feed
+    name: nuget.org
