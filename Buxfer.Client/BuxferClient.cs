@@ -76,10 +76,12 @@ namespace Buxfer.Client
         #region Methods
 
         /// <summary>
-        ///     Adds the transaction.
+        ///     Adds expense or income transaction.
+        ///     Use an overload with creation request instead
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>True if transaction was added.</returns>
+        [Obsolete]
         public async Task<bool> AddTransaction(Transaction transaction)
         {
             var serializer = new TransactionSerializer(transaction);
@@ -90,6 +92,113 @@ namespace Buxfer.Client
 
             var executeRequestAsync = await ExecuteRequestAsync<AddTransactionResponse>(request);
             return executeRequestAsync.TransactionAdded;
+        }
+        
+        /// <summary>
+        ///     Adds general transaction with additional init if requered
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        /// <returns>Transaction creation status</returns>
+        private async Task<AddTransactionResponse> AddTransaction(TransactionCreationRequest transaction, Action<IRestRequest> additionalInit=null)
+        {
+            var builder = CreateRequestBuilder("add_transaction", Method.POST);
+            var request = builder.Request;
+            AddCreationRequest(request, transaction);
+            additionalInit?.Invoke(request);
+            return await ExecuteRequestAsync<AddTransactionResponse>(request);
+        }
+        
+        /// <summary>
+        ///     Adds expense transaction 
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        /// <returns>Transaction creation status</returns>
+        private async Task<AddTransactionResponse> AddTransaction(ExpenseCreationRequest transaction)
+        {
+            return await AddTransaction(transaction,null);
+        }
+        
+        /// <summary>
+        ///     Adds income transaction
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        /// <returns>Transaction creation status</returns>
+        private async Task<AddTransactionResponse> AddTransaction(IncomeCreationRequest transaction)
+        {
+            return await AddTransaction(transaction,null);
+        }
+        /// <summary>
+        ///     Adds transfer transaction
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        /// <returns>Transaction creation status</returns>
+        private async Task<AddTransactionResponse> AddTransaction(TransferCreationRequest transaction)
+        {
+            return await AddTransaction(transaction,null);
+        }
+        /// <summary>
+        ///     Adds refund transaction
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        /// <returns>Transaction creation status</returns>
+        private async Task<AddTransactionResponse> AddTransaction(RefundCreationRequest transaction)
+        {
+            return await AddTransaction(transaction,null);
+        }
+
+        /// <summary>
+        ///     Adds loan transaction
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        /// <returns>Transaction creation status</returns>
+        private async Task<AddTransactionResponse> AddTransaction(LoanCreationRequest transaction)
+        {
+            return await AddTransaction(transaction, r =>
+            {
+                r.AddParameter("borrowedBy", transaction.BorrowedBy);
+                r.AddParameter("loanedBy", transaction.LoanedBy);
+            });
+        }
+        /// <summary>
+        ///     Adds shared bill transaction
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        /// <returns>Transaction creation status</returns>
+        private async Task<AddTransactionResponse> AddTransaction(SharedBillCreationRequest transaction)
+        {
+            return await AddTransaction(transaction, r =>
+            {
+                r.AddParameter("payers", transaction.Payers);
+                r.AddParameter("sharers", transaction.Sharers);
+                r.AddParameter("isEvenSplit", transaction.IsEvenSplit);
+            });
+        }
+
+        /// <summary>
+        ///     Adds paid for friend transaction
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        /// <returns>Transaction creation status</returns>
+        private async Task<AddTransactionResponse> AddTransaction(PaidForFriendCreationRequest transaction)
+        {
+            return await AddTransaction(transaction, r =>
+            {
+                r.AddParameter("paidFor", transaction.PaidFor);
+                r.AddParameter("paidBy", transaction.PaidBy);
+            });
+        }
+
+        private void AddCreationRequest(IRestRequest request, TransactionCreationRequest transaction)
+        {
+            request.AddParameter("description", transaction.Description);
+            request.AddParameter("amount", transaction.Amount);
+            request.AddParameter("accountId", transaction.AccountId);
+            request.AddParameter("fromAccountId", transaction.FromAccountId);
+            request.AddParameter("toAccountId", transaction.ToAccountId);
+            request.AddParameter("date", transaction.Date.ToString("YYYY-MM-DD"));
+            request.AddParameter("tags", transaction.Tags);
+            request.AddParameter("type", transaction.Type);
+            request.AddParameter("status", transaction.Status.ToString().ToLower());
         }
 
         /// <summary>
