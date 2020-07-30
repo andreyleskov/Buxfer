@@ -23,7 +23,7 @@ namespace Buxfer.Client.Responses
             public bool isFutureDated { get; set; }
             public bool isPending { get; set; }
             public DateTime sortDate { get; set; }
-            public TransactionAccount fromAccount { get; set; }
+            public AccountInfo fromAccount { get; set; }
         }
         
     public class CreatedExpenseTransaction
@@ -66,7 +66,7 @@ namespace Buxfer.Client.Responses
         public bool isFutureDated { get; set; }
         public bool isPending { get; set; }
         public string sortDate { get; set; }
-        public TransactionAccount fromAccount { get; set; }
+        public AccountInfo fromAccount { get; set; }
     }
 
     public class CreatedTransferTransaction
@@ -88,7 +88,7 @@ namespace Buxfer.Client.Responses
         public bool isFutureDated { get; set; }
         public bool isPending { get; set; }
         public string sortDate { get; set; }
-        public TransactionAccount fromAccount { get; set; }
+        public AccountInfo fromAccount { get; set; }
     }
 
     public class CreatedIncomeTransaction

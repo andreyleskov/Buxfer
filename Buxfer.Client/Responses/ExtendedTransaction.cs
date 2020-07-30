@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Buxfer.Client.Responses
 {
-    public class TransactionAccount    {
-        public int id { get; set; } 
-        public string name { get; set; } 
+    public class AccountInfo    {
+        public int Id { get; set; } 
+        public string Name { get; set; } 
 
     }
     
@@ -33,8 +33,8 @@ namespace Buxfer.Client.Responses
         public int rawTransactionType { get; set; } //not Presented in Transaction
         public string normalizedDate { get; set; } //not Presented in Transaction
         public decimal expenseAmount { get; set; } //not Presented in Transaction
-        public TransactionAccount fromAccount { get; set; } //not Presented in Transaction
-        public TransactionAccount toAccount { get; set; } //not Presented in Transaction
+        public AccountInfo fromAccount { get; set; } //not Presented in Transaction
+        public AccountInfo toAccount { get; set; } //not Presented in Transaction
         
   
         public bool isFutureDated { get; set; }  //not Presented in Transaction

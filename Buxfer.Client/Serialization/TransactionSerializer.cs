@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace Buxfer.Client.Serialization
@@ -60,10 +61,10 @@ namespace Buxfer.Client.Serialization
 
         private void AddTags()
         {
-            if (!string.IsNullOrEmpty(m_transaction.TagNames))
+            if (m_transaction.TagNames?.Any()==true)
                 m_builder.AppendFormat(
                     " tags:{0}",
-                    m_transaction.TagNames);
+                    string.Join(",",m_transaction.TagNames));
         }
 
         private void AddAccount()

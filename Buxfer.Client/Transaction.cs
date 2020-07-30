@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using RestSharp.Deserializers;
@@ -74,9 +75,9 @@ namespace Buxfer.Client
         ///     The tag names.
         /// </value>
         /// TODO: convert to tags list
-        public string TagNames { get; set; }
+        public List<string> TagNames { get; set; }=new List<string>();
 
-        public string Tags { get; set; }
+        public string Tags => String.Join(",", TagNames);
 
         /// <summary>
         ///     Gets or sets the extra information.
@@ -84,7 +85,7 @@ namespace Buxfer.Client
         /// <value>
         ///     The extra information.
         /// </value>
-        public string ExtraInfo { get; set; }
+        //public string ExtraInfo { get; set; }
 
         /// <summary>
         ///     Gets or sets the status.

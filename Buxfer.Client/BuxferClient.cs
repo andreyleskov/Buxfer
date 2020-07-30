@@ -115,13 +115,17 @@ namespace Buxfer.Client
         }
 
         private async Task<T> AddTransaction<T>(Transaction transaction,
-            Action<IRestRequest> additionalInit = null)
+            Action<IRestRequest> additionalInit = null,Func<RawTransaction,T> customTransactionBuilder=null)
         {
             var builder = CreateRequestBuilder("add_transaction", Method.POST);
             var request = builder.Request;
             AddCreationRequest(request, transaction);
             additionalInit?.Invoke(request);
-            return await ExecuteRequestAsync<T>(request);
+            if(customTransactionBuilder==null)
+                return await ExecuteRequestAsync<T>(request);
+
+            var rawTransaction = await ExecuteRequestAsync<RawTransaction>(request);
+            return customTransactionBuilder(rawTransaction);
         }
 
         /// <summary>
@@ -129,9 +133,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<RawTransaction> AddTransaction(ExpenseTransaction transaction)
+        public async Task<ExpenseTransaction> AddTransaction(ExpenseTransaction transaction)
         {
-            return await AddTransaction<RawTransaction>(transaction, null);
+            return await AddTransaction<ExpenseTransaction>(transaction, null);
         }
 
         /// <summary>
@@ -139,9 +143,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<RawTransaction> AddTransaction(IncomeTransaction transaction)
+        public async Task<IncomeTransaction> AddTransaction(IncomeTransaction transaction)
         {
-            return await AddTransaction<RawTransaction>(transaction, null);
+            return await AddTransaction<IncomeTransaction>(transaction, null);
         }
 
         /// <summary>
@@ -149,13 +153,13 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<RawTransaction> AddTransaction(TransferTransaction transaction)
+        public async Task<TransferTransaction> AddTransaction(TransferTransaction transaction)
         {
-            return await AddTransaction<RawTransaction>(transaction, b =>
+            return await AddTransaction<TransferTransaction>(transaction, b =>
             {
                 b.AddIfNotZero("fromAccountId", transaction.FromAccountId);
                 b.AddIfNotZero("toAccountId", transaction.ToAccountId);
-            });
+            },raw => raw.ToTransfer());
         }
 
         /// <summary>
