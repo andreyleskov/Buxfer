@@ -3,24 +3,45 @@ using System.Collections.Generic;
 
 namespace Buxfer.Client.Responses
 {
-    public class ExtendedTransaction
-    {
+    public class TransactionAccount    {
         public int id { get; set; } 
-        public string description { get; set; } 
-        public DateTime date { get; set; } 
-        public string normalizedDate { get; set; } 
-        public TransactionType type { get; set; } 
-        public TransactionType transactionType { get; set; } 
-        public int rawTransactionType { get; set; } 
-        public decimal amount { get; set; } 
-        public decimal expenseAmount { get; set; } 
-        public int accountId { get; set; } 
-        public string accountName { get; set; } 
-        public string tags { get; set; } 
-        public List<string> tagNames { get; set; } 
-        public TransactionStatus status { get; set; } 
-        public bool isFutureDated { get; set; } 
-        public bool isPending { get; set; } 
-        public DateTime sortDate { get; set; } 
+        public string name { get; set; } 
+
     }
+    
+    /// <summary>
+    /// Returned from API, has some duplicate fields 
+    /// </summary>
+    public class RawTransaction
+    {
+        public int id { get; set; } //same in Transaction
+        public string description { get; set; }  //same in Transaction
+        public DateTime date { get; set; }  //same in Transaction
+        public TransactionType type { get; set; }  //same in Transaction
+        public decimal amount { get; set; }  //same in Transaction
+        public int accountId { get; set; }  //same in Transaction
+        
+        public string accountName { get; set; }  //same in Transaction
+        public string tags { get; set; }  //same in Transaction
+        public List<string> tagNames { get; set; }  //same in Transaction
+        public TransactionStatus status { get; set; }  //same in Transaction
+        public bool isPending { get; set; }  //same in Transaction
+        
+        // public string ExtraInfo { get; set; }//missing here, exists in Transaction
+        
+        public TransactionType transactionType { get; set; }  //not Presented in Transaction
+        public int rawTransactionType { get; set; } //not Presented in Transaction
+        public string normalizedDate { get; set; } //not Presented in Transaction
+        public decimal expenseAmount { get; set; } //not Presented in Transaction
+        public TransactionAccount fromAccount { get; set; } //not Presented in Transaction
+        public TransactionAccount toAccount { get; set; } //not Presented in Transaction
+        
+  
+        public bool isFutureDated { get; set; }  //not Presented in Transaction
+     
+        public DateTime sortDate { get; set; }  //not Presented in Transaction
+        
+
+    }
+  
 }

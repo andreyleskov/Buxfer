@@ -5,6 +5,6 @@ namespace Buxfer.Client.Responses
     public class ExtendedTransactionResponse : SuccessResponseBase
     {
         public int NumTransactions { get; set; }
-        public List<ExtendedTransaction> Transactions { get; internal set; }
+        public List<RawTransaction> Transactions { get; internal set; }
     }
 }

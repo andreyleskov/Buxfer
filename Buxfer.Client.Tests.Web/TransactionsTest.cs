@@ -12,6 +12,8 @@ namespace Buxfer.Client.Tests.Web
     [Category("Transactions")]
     public class TransactionsTest
     {
+        private const string BuxferClientAutoTestsTag = "Buxfer.Client auto tests";
+
         [Test]
         public async Task Given_expense_When_add_it_Then_it_is_recorded()
         {
@@ -22,7 +24,7 @@ namespace Buxfer.Client.Tests.Web
                 Amount = 1.0m,
                 AccountId = settings.AccountId,
                 Date = DateTime.Now,
-                Tags = "Buxfer.Client auto tests"
+                Tags = BuxferClientAutoTestsTag
             };
 
             var createdTransaction = await target.AddTransaction(transaction);
@@ -34,28 +36,6 @@ namespace Buxfer.Client.Tests.Web
             loadedTransaction.ShouldBeLike(transaction);
         }
 
-        [Test]
-        public async Task Given_expense_with_wrong_accounts_When_add_it_Then_receive_parse_error_response()
-        {
-            var client = TestClientFactory.BuildClient(out var settings);
-            var transaction = new ExpenseTransaction
-            {
-                Description = "Test expense transaction with wrong account from Buxfer 2",
-                Amount = 1.0m,
-                Date = DateTime.Now,
-                Tags = "Buxfer.Client auto tests",
-            };
-
-            var createdTransaction = await client.AddTransaction(transaction);
-            createdTransaction.ShouldBeLike(transaction);
-            
-            createdTransaction.expenseAmount.Should().Be(transaction.Amount);
-
-            var loadedTransaction = await LoadByTagAndId(client, transaction.Tags, createdTransaction.id);
-            loadedTransaction.ShouldBeLike(transaction);
-        }
-
-        
         private static async Task<ExtendedTransaction> LoadByTagAndId(BuxferClient target, string tags, int id)
         {
             var loadedTransactions = await target.GetExtendedTransactions(f => f.TagName = tags);
@@ -70,17 +50,18 @@ namespace Buxfer.Client.Tests.Web
             var target = TestClientFactory.BuildClient(out var settings);
             var transaction = new IncomeTransaction
             {
-                Description = "Test expense transaction from Buxfer",
+                Description = "Test income transaction from Buxfer",
                 Amount = 1.0m,
                 AccountId = settings.AccountId,
                 Date = DateTime.Now,
-                Tags = "Buxfer.Client auto tests"
+                Tags = BuxferClientAutoTestsTag
             };
 
             var createdTransaction = await target.AddTransaction(transaction);
             createdTransaction.ShouldBeLike(transaction);
             
-            createdTransaction.expenseAmount.Should().Be(transaction.Amount);
+            createdTransaction.expenseAmount.Should().Be(-transaction.Amount);
+            createdTransaction.amount.Should().Be(transaction.Amount);
 
             var loadedTransaction = await LoadByTagAndId(target, transaction.Tags, createdTransaction.id);
             loadedTransaction.ShouldBeLike(transaction);
@@ -88,7 +69,25 @@ namespace Buxfer.Client.Tests.Web
         [Test]
         public async Task Given_transfer_When_add_it_Then_it_is_accepted()
         {
-            throw new NotImplementedException();
+            var target = TestClientFactory.BuildClient(out var settings);
+            var transaction = new TransferTransaction
+            {
+                Description = "Test transfer transaction from Buxfer",
+                Amount = 5.0m,
+                FromAccountId = settings.AccountId,
+                ToAccountId = settings.AnotherAccountId,
+                Date = DateTime.Now,
+                Tags = BuxferClientAutoTestsTag
+            };
+
+            var createdTransaction = await target.AddTransaction(transaction);
+            createdTransaction.ShouldBeLike(transaction);
+            
+            createdTransaction.amount.Should().Be(transaction.Amount);
+            createdTransaction.fromAccountId.Should().Be()
+
+            var loadedTransaction = await LoadByTagAndId(target, transaction.Tags, createdTransaction.id);
+            loadedTransaction.ShouldBeLike(transaction);
         }
         [Test]
         public async Task Given_refund_When_add_it_Then_it_is_accepted()

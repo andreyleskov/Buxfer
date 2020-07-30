@@ -114,19 +114,14 @@ namespace Buxfer.Client
             return executeRequestAsync.TransactionAdded;
         }
 
-        /// <summary>
-        ///     Adds general transaction with additional init if required
-        /// </summary>
-        /// <param name="transaction">The transaction.</param>
-        /// <returns>Transaction creation status</returns>
-        private async Task<ExtendedTransaction> AddTransaction(Transaction transaction,
+        private async Task<T> AddTransaction<T>(Transaction transaction,
             Action<IRestRequest> additionalInit = null)
         {
             var builder = CreateRequestBuilder("add_transaction", Method.POST);
             var request = builder.Request;
             AddCreationRequest(request, transaction);
             additionalInit?.Invoke(request);
-            return await ExecuteRequestAsync<ExtendedTransaction>(request);
+            return await ExecuteRequestAsync<T>(request);
         }
 
         /// <summary>
@@ -134,9 +129,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<ExtendedTransaction> AddTransaction(ExpenseTransaction transaction)
+        public async Task<RawTransaction> AddTransaction(ExpenseTransaction transaction)
         {
-            return await AddTransaction(transaction, null);
+            return await AddTransaction<RawTransaction>(transaction, null);
         }
 
         /// <summary>
@@ -144,9 +139,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<ExtendedTransaction> AddTransaction(IncomeTransaction transaction)
+        public async Task<RawTransaction> AddTransaction(IncomeTransaction transaction)
         {
-            return await AddTransaction(transaction, null);
+            return await AddTransaction<RawTransaction>(transaction, null);
         }
 
         /// <summary>
@@ -154,12 +149,12 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<ExtendedTransaction> AddTransaction(TransferTransaction transaction)
+        public async Task<RawTransaction> AddTransaction(TransferTransaction transaction)
         {
-            return await AddTransaction(transaction, b =>
+            return await AddTransaction<RawTransaction>(transaction, b =>
             {
                 b.AddIfNotZero("fromAccountId", transaction.FromAccountId);
-                b.AddIfNotZero("fromAccountId", transaction.FromAccountId);
+                b.AddIfNotZero("toAccountId", transaction.ToAccountId);
             });
         }
 
@@ -168,9 +163,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<ExtendedTransaction> AddTransaction(RefundCreationTransaction transaction)
+        public async Task<RawTransaction> AddTransaction(RefundCreationTransaction transaction)
         {
-            return await AddTransaction(transaction, null);
+            return await AddTransaction<RawTransaction>(transaction, null);
         }
 
         /// <summary>
@@ -178,9 +173,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<ExtendedTransaction> AddTransaction(LoanTransaction transaction)
+        public async Task<RawTransaction> AddTransaction(LoanTransaction transaction)
         {
-            return await AddTransaction(transaction, r =>
+            return await AddTransaction<RawTransaction>(transaction, r =>
             {
                 r.AddIfNotEmpty("borrowedBy", transaction.BorrowedBy);
                 r.AddIfNotEmpty("loanedBy", transaction.LoanedBy);
@@ -192,9 +187,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<ExtendedTransaction> AddTransaction(SharedBillCreationTransaction transaction)
+        public async Task<RawTransaction> AddTransaction(SharedBillCreationTransaction transaction)
         {
-            return await AddTransaction(transaction, r =>
+            return await AddTransaction<RawTransaction>(transaction, r =>
             {
                 r.AddIfNotEmpty("payers", transaction.Payers);
                 r.AddIfNotEmpty("sharers", transaction.Sharers);
@@ -207,9 +202,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<ExtendedTransaction> AddTransaction(PaidForFriendTransaction transaction)
+        public async Task<RawTransaction> AddTransaction(PaidForFriendTransaction transaction)
         {
-            return await AddTransaction(transaction, r =>
+            return await AddTransaction<RawTransaction>(transaction, r =>
             {
                 r.AddIfNotEmpty("paidFor", transaction.PaidFor);
                 r.AddIfNotEmpty("paidBy", transaction.PaidBy);
@@ -283,12 +278,12 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <returns>The transactions.</returns>
-        public async Task<FilterResult<ExtendedTransaction>> GetExtendedTransactions(Action<TransactionFilter> filter)
+        public async Task<FilterResult<RawTransaction>> GetExtendedTransactions(Action<TransactionFilter> filter)
         {
             var transactionFilter = new TransactionFilter();
             filter(transactionFilter);
             var response = await ExecuteGetAsync<ExtendedTransactionResponse>("transactions", filter);
-            return new FilterResult<ExtendedTransaction>(response.Transactions, response.NumTransactions);
+            return new FilterResult<RawTransaction>(response.Transactions, response.NumTransactions);
         }
 
         /// <summary>

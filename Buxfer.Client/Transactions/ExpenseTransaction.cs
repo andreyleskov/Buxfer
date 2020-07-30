@@ -4,7 +4,7 @@ namespace Buxfer.Client
     {
         public ExpenseTransaction()
         {
-            Type= TransactionType.Expense;
+            Type = TransactionType.Expense;
         }
     }
 }

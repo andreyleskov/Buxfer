@@ -13,10 +13,10 @@ namespace Buxfer.Client
     ///     Represents a transaction.
     /// </summary>
     [DebuggerDisplay("{Description}. {Type}: {Amount} in {Date} ({Tags})")]
-    public class Transaction : EntityBase
+    public class Transaction //: EntityBase
     {
         #region Properties
-
+        public int Id { get; set; }
         /// <summary>
         ///     Gets or sets the account identifier.
         /// </summary>
@@ -93,6 +93,8 @@ namespace Buxfer.Client
         ///     The status.
         /// </value>
         public TransactionStatus Status { get; set; }
+        
+        public bool IsPending { get; set; }
 
         #endregion
     }
