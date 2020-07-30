@@ -1,8 +1,11 @@
 namespace Buxfer.Client
 {
-    public class SharedBillCreationRequest:TransactionCreationRequest
+    public class SharedBillCreationTransaction:Transaction
     {
-        public override string Type { get; } = "sharedBill";
+        public SharedBillCreationTransaction()
+        {
+            Type = TransactionType.SharedBill;
+        }
         /// <summary>
         /// [{"email", "amount"}] JSON-formatted array
         /// </summary>

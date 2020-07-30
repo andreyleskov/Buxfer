@@ -29,19 +29,20 @@ namespace Buxfer.Client
         /// <param name="password">The password.</param>
         /// <param name="logger">The logger. Could be ignored to disable any log output</param>
         /// TODO: rework authentication
-        public BuxferClient(string userName, string password, ILogger logger=null)
+        public BuxferClient(string userName, string password, ILogger logger = null)
         {
-            _logger = logger??new NullLogger<BuxferClient>();
+            _logger = logger ?? new NullLogger<BuxferClient>();
 
             var authenticator = new TokenAuthenticator(userName, password,
                 (resource, method) => CreateRequestBuilder(resource, method).Request,
                 async r => await ExecuteRequestAsync<LoginResponse>(r), _logger);
-            
+
             Init(authenticator);
         }
-        public BuxferClient(string token, ILogger logger=null)
+
+        public BuxferClient(string token, ILogger logger = null)
         {
-            _logger = logger??new NullLogger<BuxferClient>();
+            _logger = logger ?? new NullLogger<BuxferClient>();
             Init(new PresetTokenAuthenticator(token));
         }
 
@@ -56,7 +57,7 @@ namespace Buxfer.Client
             _authenticator = authenticator;
         }
 
-            #endregion
+        #endregion
 
         public async Task<string> Login()
         {
@@ -112,57 +113,64 @@ namespace Buxfer.Client
             var executeRequestAsync = await ExecuteRequestAsync<AddTransactionResponse>(request);
             return executeRequestAsync.TransactionAdded;
         }
-        
+
         /// <summary>
-        ///     Adds general transaction with additional init if requered
+        ///     Adds general transaction with additional init if required
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        private async Task<CreatedTransaction> AddTransaction(TransactionCreationRequest transaction, Action<IRestRequest> additionalInit=null)
+        private async Task<ExtendedTransaction> AddTransaction(Transaction transaction,
+            Action<IRestRequest> additionalInit = null)
         {
             var builder = CreateRequestBuilder("add_transaction", Method.POST);
             var request = builder.Request;
             AddCreationRequest(request, transaction);
             additionalInit?.Invoke(request);
-            return await ExecuteRequestAsync<CreatedTransaction>(request);
+            return await ExecuteRequestAsync<ExtendedTransaction>(request);
         }
-        
+
         /// <summary>
         ///     Adds expense transaction 
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<CreatedTransaction> AddTransaction(ExpenseCreationRequest transaction)
+        public async Task<ExtendedTransaction> AddTransaction(ExpenseTransaction transaction)
         {
-            return await AddTransaction(transaction,null);
+            return await AddTransaction(transaction, null);
         }
-        
+
         /// <summary>
         ///     Adds income transaction
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<CreatedTransaction> AddTransaction(IncomeCreationRequest transaction)
+        public async Task<ExtendedTransaction> AddTransaction(IncomeTransaction transaction)
         {
-            return await AddTransaction(transaction,null);
+            return await AddTransaction(transaction, null);
         }
+
         /// <summary>
         ///     Adds transfer transaction
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<CreatedTransaction> AddTransaction(TransferCreationRequest transaction)
+        public async Task<ExtendedTransaction> AddTransaction(TransferTransaction transaction)
         {
-            return await AddTransaction(transaction,null);
+            return await AddTransaction(transaction, b =>
+            {
+                b.AddIfNotZero("fromAccountId", transaction.FromAccountId);
+                b.AddIfNotZero("fromAccountId", transaction.FromAccountId);
+            });
         }
+
         /// <summary>
         ///     Adds refund transaction
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<CreatedTransaction> AddTransaction(RefundCreationRequest transaction)
+        public async Task<ExtendedTransaction> AddTransaction(RefundCreationTransaction transaction)
         {
-            return await AddTransaction(transaction,null);
+            return await AddTransaction(transaction, null);
         }
 
         /// <summary>
@@ -170,25 +178,26 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<CreatedTransaction> AddTransaction(LoanCreationRequest transaction)
+        public async Task<ExtendedTransaction> AddTransaction(LoanTransaction transaction)
         {
             return await AddTransaction(transaction, r =>
             {
-                r.AddParameter("borrowedBy", transaction.BorrowedBy);
-                r.AddParameter("loanedBy", transaction.LoanedBy);
+                r.AddIfNotEmpty("borrowedBy", transaction.BorrowedBy);
+                r.AddIfNotEmpty("loanedBy", transaction.LoanedBy);
             });
         }
+
         /// <summary>
         ///     Adds shared bill transaction
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<CreatedTransaction> AddTransaction(SharedBillCreationRequest transaction)
+        public async Task<ExtendedTransaction> AddTransaction(SharedBillCreationTransaction transaction)
         {
             return await AddTransaction(transaction, r =>
             {
-                r.AddParameter("payers", transaction.Payers);
-                r.AddParameter("sharers", transaction.Sharers);
+                r.AddIfNotEmpty("payers", transaction.Payers);
+                r.AddIfNotEmpty("sharers", transaction.Sharers);
                 r.AddParameter("isEvenSplit", transaction.IsEvenSplit);
             });
         }
@@ -198,38 +207,24 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<CreatedTransaction> AddTransaction(PaidForFriendCreationRequest transaction)
+        public async Task<ExtendedTransaction> AddTransaction(PaidForFriendTransaction transaction)
         {
             return await AddTransaction(transaction, r =>
             {
-                r.AddParameter("paidFor", transaction.PaidFor);
-                r.AddParameter("paidBy", transaction.PaidBy);
+                r.AddIfNotEmpty("paidFor", transaction.PaidFor);
+                r.AddIfNotEmpty("paidBy", transaction.PaidBy);
             });
         }
 
-        
-        private void AddCreationRequest(IRestRequest request, TransactionCreationRequest transaction)
+
+        private void AddCreationRequest(IRestRequest request, Transaction transaction)
         {
-            if(!string.IsNullOrEmpty(transaction.Description))
-                 request.AddParameter("description", transaction.Description);
-            
+            request.AddIfNotEmpty("description", transaction.Description);
             request.AddParameter("amount", transaction.Amount);
-            
-            if(transaction.AccountId!=0)
-                request.AddParameter("accountId", transaction.AccountId);
-            
-            if(transaction.FromAccountId !=0)
-                request.AddParameter("fromAccountId", transaction.FromAccountId);
-            
-            if(transaction.ToAccountId != 0)
-                request.AddParameter("toAccountId", transaction.ToAccountId);
-            
+            request.AddIfNotZero("accountId", transaction.AccountId);
             request.AddParameter("date", transaction.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-            
-            if(!string.IsNullOrEmpty(transaction.Tags))
-                request.AddParameter("tags", transaction.Tags);
-            
-            request.AddParameter("type", transaction.Type);
+            request.AddIfNotEmpty("tags", transaction.Tags);
+            request.AddParameter("type", transaction.Type.ToApiString());
             request.AddParameter("status", transaction.Status.ToString().ToLower());
         }
 
@@ -269,6 +264,31 @@ namespace Buxfer.Client
         {
             var response = await ExecuteGetAsync<TransactionsResponse>("transactions", filter);
             return new FilterResult<Transaction>(response.Transactions, response.NumTransactions);
+        }
+
+        /// <summary>
+        ///     Gets the transactions.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <returns>The transactions.</returns>
+        public async Task<FilterResult<Transaction>> GetTransactions(Action<TransactionFilter> filter)
+        {
+            var transactionFilter = new TransactionFilter();
+            filter(transactionFilter);
+            return await GetTransactions(transactionFilter);
+        }
+
+        /// <summary>
+        ///     Gets the transactions.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <returns>The transactions.</returns>
+        public async Task<FilterResult<ExtendedTransaction>> GetExtendedTransactions(Action<TransactionFilter> filter)
+        {
+            var transactionFilter = new TransactionFilter();
+            filter(transactionFilter);
+            var response = await ExecuteGetAsync<ExtendedTransactionResponse>("transactions", filter);
+            return new FilterResult<ExtendedTransaction>(response.Transactions, response.NumTransactions);
         }
 
         /// <summary>

@@ -24,7 +24,7 @@ namespace Buxfer.Client
         /// <value>
         ///     The parent identifier.
         /// </value>
-        public string ParentId { get; set; }
+        public int ParentId { get; set; }
 
         #endregion
     }

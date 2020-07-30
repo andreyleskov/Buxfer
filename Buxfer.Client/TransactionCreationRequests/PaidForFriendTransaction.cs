@@ -1,8 +1,11 @@
 namespace Buxfer.Client
 {
-    public class PaidForFriendCreationRequest:TransactionCreationRequest
+    public class PaidForFriendTransaction:Transaction
     {
-        public override string Type { get; } = "paidForFriend";
+        public PaidForFriendTransaction()
+        {
+            Type= TransactionType.PaidForFriend;
+        }
         /// <summary>
         /// uid | email
         /// </summary>

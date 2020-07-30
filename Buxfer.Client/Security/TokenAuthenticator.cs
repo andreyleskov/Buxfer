@@ -3,29 +3,9 @@ using System.Threading.Tasks;
 using Buxfer.Client.Responses;
 using Microsoft.Extensions.Logging;
 using RestSharp;
-using RestSharp.Authenticators;
 
 namespace Buxfer.Client.Security
 {
-    public interface ITokenAuthenticator : IAuthenticator
-    {
-         string Token { get; }
-         bool Authenticated { get; }
-    }
-    public class PresetTokenAuthenticator : ITokenAuthenticator
-    {
-        public string Token { get; }
-        public bool Authenticated { get; } = true;
-
-        public PresetTokenAuthenticator(string token)
-        {
-            Token = token;
-        }
-        public void Authenticate(IRestClient client, IRestRequest request)
-        {
-            request.AddParameter("token", Token);
-        }
-    }
     /// <summary>
     ///     IAuthenticator's implementation that use Buxfer API token.
     /// </summary>

@@ -23,7 +23,7 @@ namespace Buxfer.Client
         /// <value>
         ///     The account identifier.
         /// </value>
-        public string AccountId { get; set; }
+        public int AccountId { get; set; }
 
         /// <summary>
         ///     Gets or sets the name of the account.
@@ -73,8 +73,10 @@ namespace Buxfer.Client
         /// <value>
         ///     The tag names.
         /// </value>
-        //// TODO: transformar numa lista?
+        /// TODO: convert to tags list
         public string TagNames { get; set; }
+
+        public string Tags { get; set; }
 
         /// <summary>
         ///     Gets or sets the extra information.

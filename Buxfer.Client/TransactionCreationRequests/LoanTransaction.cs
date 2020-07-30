@@ -1,8 +1,11 @@
 namespace Buxfer.Client
 {
-    public class LoanCreationRequest:TransactionCreationRequest
+    public class LoanTransaction:Transaction
     {
-        public override string Type { get; } = "loan";
+        public LoanTransaction()
+        {
+            Type = TransactionType.Loan;
+        }
         /// <summary>
         /// uid | email
         /// </summary>
