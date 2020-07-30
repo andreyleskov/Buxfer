@@ -1,6 +1,6 @@
 namespace Buxfer.Client.Tests.Web
 {
-    public class Settings
+    public class SecretSettings
     {
         public string UserId { get; set; }
         public string Password { get; set; }
@@ -8,5 +8,6 @@ namespace Buxfer.Client.Tests.Web
         public string AccountName { get; set; }
         public string TagId { get; set; }
         public string TagName { get; set; }
+        public string APIToken { get; set; }
     }
 }

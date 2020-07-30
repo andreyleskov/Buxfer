@@ -4,7 +4,7 @@
     ///     An output from Buxfer API.
     /// </summary>
     /// <typeparam name="TResponse">The type of the response.</typeparam>
-    public class Output<TResponse> where TResponse : SuccessResponseBase
+    public class Output<TResponse>
     {
         /// <summary>
         ///     Gets or sets the response.

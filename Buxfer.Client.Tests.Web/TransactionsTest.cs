@@ -1,16 +1,77 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace Buxfer.Client.Tests.Web
 {
+   // {"response":{"id":140663607,"description":"Test_expense_transaction_from_Buxfer","date":"30 Jul 21","normalizedDate":"2021-07-30","type":"expense","transactionType":"expense","rawTransactionType":3,"amount":1,"expenseAmount":1,"accountId":1196178,"accountName":"MSync","tags":"","tagNames":[],"status":"cleared","isFutureDated":true,"isPending":true,"sortDate":"2021-07-30"}}
+    
     [TestFixture]
     [Category("Transactions")]
     public class TransactionsTest
     {
         [Test]
-        public async Task AddTransaction_Transaction_Added()
+        public async Task Given_expense_When_add_it_Then_it_is_recorded()
+        {
+            var target = TestClientFactory.BuildClient(out var settings);
+            var transaction = new ExpenseCreationRequest
+            {
+                Description = "Test_expense_transaction_from_Buxfer",
+                Amount = 1.0m,
+                AccountId = settings.AccountId,
+                Date = DateTime.Now
+            };
+
+            var actual = await target.AddTransaction(transaction);
+            actual.id.Should().BePositive();
+        }
+        [Test]
+        public async Task Given_expense_When_add_it_Then_it_is_accepted()
+        {
+            throw new NotImplementedException();
+        }
+        [Test]
+        public async Task Given_income_When_add_it_Then_it_is_accepted()
+        {
+            throw new NotImplementedException();
+        }
+        [Test]
+        public async Task Given_transfer_When_add_it_Then_it_is_accepted()
+        {
+            throw new NotImplementedException();
+        }
+        [Test]
+        public async Task Given_refund_When_add_it_Then_it_is_accepted()
+        {
+            throw new NotImplementedException();
+        }
+        [Test]
+        public async Task Given_paidForFriend_When_add_it_Then_it_is_accepted()
+        {
+            throw new NotImplementedException();
+        }
+        [Test]
+        public async Task Given_sharedBill_When_add_it_Then_it_is_accepted()
+        {
+            throw new NotImplementedException();
+        }
+        [Test]
+        public async Task Given_malformed_expense_When_add_it_Then_receive_parse_error_response()
+        {
+            throw new NotImplementedException();
+        }
+        
+        [Test]
+        public async Task Given_expense_with_wrong_accounts_When_add_it_Then_receive_parse_error_response()
+        {
+            throw new NotImplementedException();
+        }
+        
+        [Test]
+        public async Task AddLegacy_Transaction_Transaction_Added()
         {
             var target = TestClientFactory.BuildClient(out var settings);
             var transaction = new Transaction

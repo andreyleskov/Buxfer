@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -7,7 +8,9 @@ using Buxfer.Client.Responses;
 using Buxfer.Client.Security;
 using Buxfer.Client.Serialization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using RestSharp;
+using RestSharp.Authenticators;
 using RestSharp.Serialization.Json;
 
 namespace Buxfer.Client
@@ -24,32 +27,48 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="userId">The user identifier.</param>
         /// <param name="password">The password.</param>
+        /// <param name="logger">The logger. Could be ignored to disable any log output</param>
         /// TODO: rework authentication
-        public BuxferClient(string userName, string password, ILogger logger)
+        public BuxferClient(string userName, string password, ILogger logger=null)
         {
-            ApiBaseUrl = "https://www.buxfer.com/api/";
-            m_authenticator = new TokenAuthenticator(userName, password,
-                (resource, method) => CreateRequestBuilder(resource, method).Request,
-                async r => await ExecuteRequestAsync<LoginResponse>(r), logger);
+            _logger = logger??new NullLogger<BuxferClient>();
 
-            m_restClient = new RestClient(ApiBaseUrl);
-            m_restClient.AddHandler("application/x-javascript", () => new JsonDeserializer());
-            m_restClient.PreAuthenticate = true;
-            m_restClient.Authenticator = m_authenticator;
+            var authenticator = new TokenAuthenticator(userName, password,
+                (resource, method) => CreateRequestBuilder(resource, method).Request,
+                async r => await ExecuteRequestAsync<LoginResponse>(r), _logger);
+            
+            Init(authenticator);
+        }
+        public BuxferClient(string token, ILogger logger=null)
+        {
+            _logger = logger??new NullLogger<BuxferClient>();
+            Init(new PresetTokenAuthenticator(token));
         }
 
-        #endregion
+
+        private void Init(ITokenAuthenticator authenticator)
+        {
+            ApiBaseUrl = "https://www.buxfer.com/api/";
+            _restClient = new RestClient(ApiBaseUrl);
+            _restClient.AddHandler("application/x-javascript", () => new JsonDeserializer());
+            _restClient.PreAuthenticate = true;
+            _restClient.Authenticator = authenticator;
+            _authenticator = authenticator;
+        }
+
+            #endregion
 
         public async Task<string> Login()
         {
             await GetTransactions();
-            return m_authenticator.Token;
+            return _authenticator.Token;
         }
 
         #region Fields
 
-        private readonly TokenAuthenticator m_authenticator;
-        private readonly IRestClient m_restClient;
+        private ITokenAuthenticator _authenticator;
+        private IRestClient _restClient;
+        private readonly ILogger _logger;
 
         #endregion
 
@@ -69,7 +88,7 @@ namespace Buxfer.Client
         /// <value>
         ///     <c>true</c> if authenticated; otherwise, <c>false</c>.
         /// </value>
-        public bool Authenticated => m_authenticator.Authenticated;
+        public bool Authenticated => _authenticator.Authenticated;
 
         #endregion
 
@@ -99,13 +118,13 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        private async Task<AddTransactionResponse> AddTransaction(TransactionCreationRequest transaction, Action<IRestRequest> additionalInit=null)
+        private async Task<CreatedTransaction> AddTransaction(TransactionCreationRequest transaction, Action<IRestRequest> additionalInit=null)
         {
             var builder = CreateRequestBuilder("add_transaction", Method.POST);
             var request = builder.Request;
             AddCreationRequest(request, transaction);
             additionalInit?.Invoke(request);
-            return await ExecuteRequestAsync<AddTransactionResponse>(request);
+            return await ExecuteRequestAsync<CreatedTransaction>(request);
         }
         
         /// <summary>
@@ -113,7 +132,7 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        private async Task<AddTransactionResponse> AddTransaction(ExpenseCreationRequest transaction)
+        public async Task<CreatedTransaction> AddTransaction(ExpenseCreationRequest transaction)
         {
             return await AddTransaction(transaction,null);
         }
@@ -123,7 +142,7 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        private async Task<AddTransactionResponse> AddTransaction(IncomeCreationRequest transaction)
+        public async Task<CreatedTransaction> AddTransaction(IncomeCreationRequest transaction)
         {
             return await AddTransaction(transaction,null);
         }
@@ -132,7 +151,7 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        private async Task<AddTransactionResponse> AddTransaction(TransferCreationRequest transaction)
+        public async Task<CreatedTransaction> AddTransaction(TransferCreationRequest transaction)
         {
             return await AddTransaction(transaction,null);
         }
@@ -141,7 +160,7 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        private async Task<AddTransactionResponse> AddTransaction(RefundCreationRequest transaction)
+        public async Task<CreatedTransaction> AddTransaction(RefundCreationRequest transaction)
         {
             return await AddTransaction(transaction,null);
         }
@@ -151,7 +170,7 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        private async Task<AddTransactionResponse> AddTransaction(LoanCreationRequest transaction)
+        public async Task<CreatedTransaction> AddTransaction(LoanCreationRequest transaction)
         {
             return await AddTransaction(transaction, r =>
             {
@@ -164,7 +183,7 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        private async Task<AddTransactionResponse> AddTransaction(SharedBillCreationRequest transaction)
+        public async Task<CreatedTransaction> AddTransaction(SharedBillCreationRequest transaction)
         {
             return await AddTransaction(transaction, r =>
             {
@@ -179,7 +198,7 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        private async Task<AddTransactionResponse> AddTransaction(PaidForFriendCreationRequest transaction)
+        public async Task<CreatedTransaction> AddTransaction(PaidForFriendCreationRequest transaction)
         {
             return await AddTransaction(transaction, r =>
             {
@@ -188,15 +207,28 @@ namespace Buxfer.Client
             });
         }
 
+        
         private void AddCreationRequest(IRestRequest request, TransactionCreationRequest transaction)
         {
-            request.AddParameter("description", transaction.Description);
+            if(!string.IsNullOrEmpty(transaction.Description))
+                 request.AddParameter("description", transaction.Description);
+            
             request.AddParameter("amount", transaction.Amount);
-            request.AddParameter("accountId", transaction.AccountId);
-            request.AddParameter("fromAccountId", transaction.FromAccountId);
-            request.AddParameter("toAccountId", transaction.ToAccountId);
-            request.AddParameter("date", transaction.Date.ToString("YYYY-MM-DD"));
-            request.AddParameter("tags", transaction.Tags);
+            
+            if(transaction.AccountId!=0)
+                request.AddParameter("accountId", transaction.AccountId);
+            
+            if(transaction.FromAccountId !=0)
+                request.AddParameter("fromAccountId", transaction.FromAccountId);
+            
+            if(transaction.ToAccountId != 0)
+                request.AddParameter("toAccountId", transaction.ToAccountId);
+            
+            request.AddParameter("date", transaction.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            
+            if(!string.IsNullOrEmpty(transaction.Tags))
+                request.AddParameter("tags", transaction.Tags);
+            
             request.AddParameter("type", transaction.Type);
             request.AddParameter("status", transaction.Status.ToString().ToLower());
         }
@@ -331,10 +363,8 @@ namespace Buxfer.Client
         }
 
         private async Task<TResponse> ExecuteRequestAsync<TResponse>(IRestRequest request)
-            where TResponse : SuccessResponseBase
         {
-            var output = await m_restClient.ExecuteAsync<Output<TResponse>>(request);
-
+            var output = await _restClient.ExecuteAsync<Output<TResponse>>(request);
             if (output.StatusCode == HttpStatusCode.OK && output.Data != null) return output.Data.Response;
             if (output.Data == null) throw new BuxferException(output.ErrorMessage);
 

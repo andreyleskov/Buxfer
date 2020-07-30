@@ -11,7 +11,6 @@
         /// <value>
         ///     <c>true</c> if transaction was added; otherwise, <c>false</c>.
         /// </value>
-        public bool TransactionAdded { get; set; }
-        public string ParseStatus { get; set; }
+         public bool TransactionAdded { get; set; }
     }
 }

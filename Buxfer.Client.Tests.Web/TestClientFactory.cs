@@ -4,38 +4,44 @@ using Microsoft.Extensions.Logging;
 
 namespace Buxfer.Client.Tests.Web
 {
-    public static class TestClientFactory
+    public static class SecretManager
     {
-        public static Settings LoadSettings()
+        public static SecretSettings LoadSettings()
         {
             var configuration = new ConfigurationBuilder()
-                .AddUserSecrets<Settings>()
+                .AddUserSecrets<SecretSettings>()
                 .Build();
 
-            var settings = new Settings();
+            var settings = new SecretSettings();
             configuration.Bind(settings);
 
-            if (string.IsNullOrEmpty(settings.UserId)
-                || string.IsNullOrEmpty(settings.Password)
+            if (String.IsNullOrEmpty(settings.UserId)
+                || String.IsNullOrEmpty(settings.Password)
                 || settings.AccountId == 0
-                || string.IsNullOrEmpty(settings.AccountName)
-                || string.IsNullOrEmpty(settings.TagId)
-                || string.IsNullOrEmpty(settings.TagName))
+                || String.IsNullOrEmpty(settings.AccountName)
+                || String.IsNullOrEmpty(settings.TagId)
+                || String.IsNullOrEmpty(settings.TagName))
                 throw new InvalidOperationException(
                     "You'll need to define some user secrets before run BuxferSharp.FunctionalTests: UserId, Password, AccountId, AccountName, TagId and TagName.");
 
             return settings;
         }
-
-        public static BuxferClient BuildClient(Settings settings, ILogger logger = null)
+    }
+    public static class TestClientFactory
+    {
+        public static BuxferClient BuildClient(SecretSettings settings, ILogger logger = null)
         {
-            logger ??= LoggerFactory.Create(c => c.AddConsole()).CreateLogger<AuthTest>();
-            return new BuxferClient(settings.UserId, settings.Password, logger);
+            logger ??= LoggerFactory.Create(c => c.AddConsole().SetMinimumLevel(LogLevel.Trace)).CreateLogger<AuthTest>();
+            
+            if(string.IsNullOrEmpty(settings.APIToken))
+                 return new BuxferClient(settings.UserId, settings.Password, logger);
+            
+            return new BuxferClient(settings.APIToken,logger);
         }
 
-        public static BuxferClient BuildClient(out Settings setting, ILogger logger = null)
+        public static BuxferClient BuildClient(out SecretSettings setting, ILogger logger = null)
         {
-            setting = LoadSettings();
+            setting = SecretManager.LoadSettings();
             return BuildClient(setting, logger);
         }
 

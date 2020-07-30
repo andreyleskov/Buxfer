@@ -7,16 +7,35 @@ using RestSharp.Authenticators;
 
 namespace Buxfer.Client.Security
 {
+    public interface ITokenAuthenticator : IAuthenticator
+    {
+         string Token { get; }
+         bool Authenticated { get; }
+    }
+    public class PresetTokenAuthenticator : ITokenAuthenticator
+    {
+        public string Token { get; }
+        public bool Authenticated { get; } = true;
+
+        public PresetTokenAuthenticator(string token)
+        {
+            Token = token;
+        }
+        public void Authenticate(IRestClient client, IRestRequest request)
+        {
+            request.AddParameter("token", Token);
+        }
+    }
     /// <summary>
     ///     IAuthenticator's implementation that use Buxfer API token.
     /// </summary>
-    public class TokenAuthenticator : IAuthenticator
+    public class TokenAuthenticator : ITokenAuthenticator
     {
         private readonly ILogger _logger;
         private readonly Func<string, Method, IRestRequest> m_createRequest;
         private readonly Func<IRestRequest, Task<LoginResponse>> m_executeRequest;
-        private readonly string m_password;
-        private readonly string m_userId;
+        private readonly string _password;
+        private readonly string _userId;
 
 
         /// <summary>
@@ -30,8 +49,8 @@ namespace Buxfer.Client.Security
             Func<IRestRequest, Task<LoginResponse>> executeRequest, ILogger logger)
         {
             _logger = logger;
-            m_userId = userId;
-            m_password = password;
+            _userId = userId;
+            _password = password;
             m_createRequest = createRequest;
             m_executeRequest = executeRequest;
         }
@@ -67,8 +86,8 @@ namespace Buxfer.Client.Security
             {
                 var loginRequest = m_createRequest("login", Method.GET);
 
-                loginRequest.AddParameter("userid", m_userId);
-                loginRequest.AddParameter("password", m_password);
+                loginRequest.AddParameter("userid", _userId);
+                loginRequest.AddParameter("password", _password);
 
                 try
                 {

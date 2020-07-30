@@ -20,15 +20,16 @@ namespace Buxfer.Client.Tests.Web
         }
 
         [Test]
-        public async Task Login_ValidCredentials_Authenticated()
+        public async Task Login_ValidCredentials_Authenticated_And_returns_Token()
         {
             var logger = LoggerFactory.Create(c => c.AddConsole()).CreateLogger<AuthTest>();
 
-            var target = new BuxferClient("andrey.leskov@gmail.com", "", logger);
+            var target = new BuxferClient("andrey.leskov@gmail.com", SecretManager.LoadSettings().Password, logger);
             var token = await target.Login();
             Console.WriteLine($"token is {token}");
             Assert.NotNull(token);
             Assert.IsTrue(target.Authenticated);
         }
+        
     }
 }
