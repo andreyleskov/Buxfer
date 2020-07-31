@@ -12,23 +12,35 @@ namespace Buxfer.Client.Tests.Web
 
     public class TemporaryEnvironment : IDisposable
     {
-        private readonly IDictionary<string, bool> _cleanUpScope;
+        private readonly IDictionary<string, string> _cleanUpScope;
         public TemporaryEnvironment(IDictionary<string,string> variables)
         {
-            _cleanUpScope = variables.ToDictionary(pair => pair.Key, pair => SetVariable(pair.Key, pair.Value));
+            _cleanUpScope = variables.ToDictionary(pair => pair.Key, pair =>
+            {
+                
+                 SetVariable(pair.Key, pair.Value, out var oldValue);
+                 return oldValue;
+            });
         }
 
-        private static bool SetVariable(string variable, string variableValue)
+        private static bool SetVariable(string variable, string variableValue, out string oldValue)
         {
-            var value = Environment.GetEnvironmentVariable(variable);
+            oldValue = Environment.GetEnvironmentVariable(variable);
             Environment.SetEnvironmentVariable(variable, variableValue);
-            return value != null;
+            return oldValue != null;
         }
 
         public void Dispose()
         {
-            foreach (var varToClean in _cleanUpScope.Where(pair => pair.Value == false))
-                Environment.SetEnvironmentVariable(varToClean.Key, null);
+            foreach (var varToClean in _cleanUpScope)
+            {
+                if(varToClean.Value!=null)
+                    Console.WriteLine($"Restoring env variable {varToClean.Key} to {varToClean.Value}");
+                else
+                    Console.WriteLine($"Deleting env variable {varToClean.Key}");
+
+                Environment.SetEnvironmentVariable(varToClean.Key, varToClean.Value);
+            }
         }
     }
     
