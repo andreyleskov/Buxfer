@@ -1,11 +1,12 @@
 namespace Buxfer.Client
 {
-    public class SharedBillCreationTransaction:Transaction
+    public class SharedBillTransaction:Transaction
     {
-        public SharedBillCreationTransaction()
+        public SharedBillTransaction()
         {
             Type = TransactionType.SharedBill;
         }
+        //TODO: create loan transaction in tests
         /// <summary>
         /// [{"email", "amount"}] JSON-formatted array
         /// </summary>

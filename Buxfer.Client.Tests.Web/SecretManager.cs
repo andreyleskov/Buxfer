@@ -8,7 +8,8 @@ namespace Buxfer.Client.Tests.Web
         public static SecretSettings LoadSettings()
         {
             var configuration = new ConfigurationBuilder()
-                .AddUserSecrets<SecretSettings>()
+                //.AddUserSecrets<SecretSettings>()
+                .AddEnvironmentVariables(s=>s.Prefix=EnvironmentVariablePrefix)
                 .Build();
 
             var settings = new SecretSettings();
@@ -25,5 +26,7 @@ namespace Buxfer.Client.Tests.Web
 
             return settings;
         }
+
+        public static string EnvironmentVariablePrefix { get; } = "Buxfer.Client.Tests.Web.";
     }
 }

@@ -35,10 +35,18 @@ namespace Buxfer.Client.Tests.Web
             
             createdTransaction.AccountId.Should().Be(transaction.AccountId);
 
-            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.Id, transaction.TagNames.First());
+            var loadedTransaction = await Load<ExpenseTransaction>(target, createdTransaction.Id, transaction.TagNames.First());
             loadedTransaction.ShouldBeLike(transaction);
         }
 
+        private static async Task<T> Load<T>(BuxferClient target, int id, string tag)
+        {
+            var loadedTransactions = await target.GetTransactions(f => f.TagName = tag);
+            var loadedTransaction = loadedTransactions.Entities.Should()
+                .Contain(t => t.Id == id).Subject;
+            return loadedTransaction.Should().BeOfType<T>().Subject;
+        }
+        
         private static async Task<RawTransaction> LoadByTagAndId(BuxferClient target, int id, string tag)
         {
             var loadedTransactions = await target.GetRawTransactions(f => f.TagName = tag);
@@ -62,11 +70,13 @@ namespace Buxfer.Client.Tests.Web
 
 
             var createdTransaction = await target.AddTransaction(transaction);
+            
             createdTransaction.ShouldBeLike(transaction);
             createdTransaction.Amount.Should().Be(transaction.Amount);
             createdTransaction.AccountId.Should().Be(transaction.AccountId);
-
-            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.Id, transaction.Tags);
+            
+            var loadedTransaction = await Load<IncomeTransaction>(target, createdTransaction.Id, transaction.TagNames.First());
+            
             loadedTransaction.ShouldBeLike(transaction);
         }
         [Test]
@@ -91,7 +101,7 @@ namespace Buxfer.Client.Tests.Web
             createdTransaction.ToAccountId.Should().Be(transaction.ToAccountId);
             createdTransaction.AccountId.Should().Be(0);
 
-            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.Id, transaction.TagNames.First());
+            var loadedTransaction = await Load<TransferTransaction>(target, createdTransaction.Id, transaction.TagNames.First());
             loadedTransaction.ShouldBeLike(transaction);
         }
         
@@ -115,7 +125,8 @@ namespace Buxfer.Client.Tests.Web
             createdTransaction.AccountId.Should().Be(transaction.FromAccountId);
             createdTransaction.ToAccountId.Should().Be(0);
 
-            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.Id, transaction.TagNames.First());
+            var loadedTransaction = await Load<TransferTransaction>(target, createdTransaction.Id, transaction.TagNames.First());
+
             loadedTransaction.ShouldBeLike(transaction);
         }
         [Test]
@@ -140,14 +151,14 @@ namespace Buxfer.Client.Tests.Web
             createdTransaction.AccountId.Should().Be(transaction.ToAccountId);
             createdTransaction.FromAccountId.Should().Be(0);
 
-            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.Id, transaction.TagNames.First());
+            var loadedTransaction = await Load<TransferTransaction>(target, createdTransaction.Id, transaction.TagNames.First());
             loadedTransaction.ShouldBeLike(transaction);
         }
         [Test]
         public async Task Given_refund_When_add_it_Then_it_is_accepted()
         {
             var target = TestClientFactory.BuildClient(out var settings);
-            var transaction = new RefundCreationTransaction()
+            var transaction = new RefundTransaction()
             {
                 Description = "Test refund transaction from Buxfer",
                 Amount = 6.0m,
@@ -163,7 +174,7 @@ namespace Buxfer.Client.Tests.Web
             createdTransaction.amount.Should().Be(transaction.Amount);
             createdTransaction.accountId.Should().Be(createdTransaction.accountId);
 
-            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.id, transaction.TagNames.First());
+            var loadedTransaction = await Load<RefundTransaction>(target, createdTransaction.id, transaction.TagNames.First());
             loadedTransaction.ShouldBeLike(transaction);
         }
         
@@ -274,6 +285,9 @@ namespace Buxfer.Client.Tests.Web
 
             Assert.IsNotNull(first.AccountId);
             Assert.AreNotEqual(1, first.Date.Year);
+
+            //can load some specialized transactions, not just general type
+            actual.Entities.Should().Contain(e => e.GetType() != typeof(Transaction));
         }
         
         [Test]
@@ -287,7 +301,7 @@ namespace Buxfer.Client.Tests.Web
             var first = actual.Entities[0];
 
             Assert.IsNotNull(first.accountId);
-            Assert.AreNotEqual(1, first.date.Year);
+            Assert.AreNotEqual(1, first.normalizedDate.Year);
         }
 
         [Test]

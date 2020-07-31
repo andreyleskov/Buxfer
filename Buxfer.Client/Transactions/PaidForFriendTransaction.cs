@@ -6,6 +6,7 @@ namespace Buxfer.Client
         {
             Type= TransactionType.PaidForFriend;
         }
+        //TODO: create loan transaction in tests
         /// <summary>
         /// uid | email
         /// </summary>

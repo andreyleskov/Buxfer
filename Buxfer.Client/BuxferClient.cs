@@ -166,7 +166,7 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<RawTransaction> AddTransaction(RefundCreationTransaction transaction)
+        public async Task<RawTransaction> AddTransaction(RefundTransaction transaction)
         {
             return await AddTransaction<RawTransaction>(transaction, null);
         }
@@ -190,7 +190,7 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<RawTransaction> AddTransaction(SharedBillCreationTransaction transaction)
+        public async Task<RawTransaction> AddTransaction(SharedBillTransaction transaction)
         {
             return await AddTransaction<RawTransaction>(transaction, r =>
             {
@@ -259,8 +259,25 @@ namespace Buxfer.Client
         /// <returns>The transactions.</returns>
         public async Task<FilterResult<Transaction>> GetTransactions(TransactionFilter filter = null)
         {
-            var response = await ExecuteGetAsync<TransactionsResponse>("transactions", filter);
-            return new FilterResult<Transaction>(response.Transactions, response.NumTransactions);
+            var response = await GetRawTransactions(filter);
+
+            var typedTransactions = response.Entities.Select(e =>
+            {
+                switch (e.type)
+                {
+                    case TransactionType.Expense: return e.ToExpense();
+                    case TransactionType.Income: return e.ToIncome();
+                    case TransactionType.Transfer: return e.ToTransfer();
+                    case TransactionType.Refund: return e.ToRefund();
+                    case TransactionType.PaidForFriend: return e.ToPaidForFriend();
+                    case TransactionType.SharedBill: return e.ToPaidForFriend();
+                    case TransactionType.Loan: return e.ToLoan();
+                    case TransactionType.Settlement: return e.ToGeneral();
+                    default:
+                        return e.ToGeneral();
+                }
+            });
+            return new FilterResult<Transaction>(typedTransactions.ToArray(), response.TotalCount);
         }
 
         /// <summary>
@@ -281,10 +298,14 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <returns>The transactions.</returns>
-        public async Task<FilterResult<RawTransaction>> GetRawTransactions(Action<TransactionFilter> filter=null)
+        public async Task<FilterResult<RawTransaction>> GetRawTransactions(Action<TransactionFilter> filter)
         {
             var transactionFilter = new TransactionFilter();
             filter?.Invoke(transactionFilter);
+            return await GetRawTransactions(transactionFilter);
+        }
+        public async Task<FilterResult<RawTransaction>> GetRawTransactions(TransactionFilter filter=null)
+        {
             var response = await ExecuteGetAsync<RawTransactionResponse>("transactions", filter);
             return new FilterResult<RawTransaction>(response.Transactions, response.NumTransactions);
         }

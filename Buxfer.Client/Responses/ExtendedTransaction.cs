@@ -16,7 +16,10 @@ namespace Buxfer.Client.Responses
     {
         public int id { get; set; } //same in Transaction
         public string description { get; set; }  //same in Transaction
-        public DateTime date { get; set; }  //same in Transaction
+        /// <summary>
+        /// day number and Month representation, seems to be a date for UI
+        /// </summary>
+        public string date { get; set; }  //same in Transaction
         public TransactionType type { get; set; }  //same in Transaction
         public decimal amount { get; set; }  //same in Transaction
         public int accountId { get; set; }  //same in Transaction
@@ -31,7 +34,7 @@ namespace Buxfer.Client.Responses
         
         public TransactionType transactionType { get; set; }  //not Presented in Transaction
         public int rawTransactionType { get; set; } //not Presented in Transaction
-        public string normalizedDate { get; set; } //not Presented in Transaction
+        public DateTime normalizedDate { get; set; } //not Presented in Transaction
         public decimal expenseAmount { get; set; } //not Presented in Transaction
         public AccountInfo fromAccount { get; set; } //not Presented in Transaction
         public AccountInfo toAccount { get; set; } //not Presented in Transaction

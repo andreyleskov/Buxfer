@@ -1,8 +1,8 @@
 namespace Buxfer.Client
 {
-    public class RefundCreationTransaction:Transaction
+    public class RefundTransaction:Transaction
     {
-        public RefundCreationTransaction()
+        public RefundTransaction()
         {
             Type = TransactionType.Refund;
         }

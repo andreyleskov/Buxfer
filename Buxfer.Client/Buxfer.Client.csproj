@@ -11,6 +11,7 @@
         <RepositoryUrl>https://github.com/andreyleskov/Buxfer</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>buxfer</PackageTags>
+        <Description>Buxfer.Client is a .Net core library to access Buxfer.com REST API </Description>
     </PropertyGroup>
 
     <ItemGroup>
