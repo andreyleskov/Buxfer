@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using Buxfer.Client.Responses;
 using Buxfer.Client.Security;
 using Buxfer.Client.Serialization;
+using Buxfer.Client.Transactions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using RestSharp;
-using RestSharp.Authenticators;
 using RestSharp.Serialization.Json;
 
 namespace Buxfer.Client
@@ -20,6 +20,12 @@ namespace Buxfer.Client
     /// </summary>
     public sealed class BuxferClient
     {
+        public async Task<string> Login()
+        {
+            await GetTransactions();
+            return _authenticator.Token;
+        }
+
         #region Constructors
 
         /// <summary>
@@ -57,12 +63,6 @@ namespace Buxfer.Client
         }
 
         #endregion
-
-        public async Task<string> Login()
-        {
-            await GetTransactions();
-            return _authenticator.Token;
-        }
 
         #region Fields
 
@@ -112,30 +112,31 @@ namespace Buxfer.Client
             var executeRequestAsync = await ExecuteRequestAsync<AddTransactionResponse>(request);
             return executeRequestAsync.TransactionAdded;
         }
+
         public async Task<Transaction> AddTransaction(Transaction transaction)
         {
             switch (transaction)
             {
                 case ExpenseTransaction e: return await AddTransaction(e);
                 case IncomeTransaction i: return await AddTransaction(i);
-                case TransferTransaction t:return await AddTransaction(t);
-                case LoanTransaction l:return await AddTransaction(l);
-                case PaidForFriendTransaction p:return await AddTransaction(p);
-                case RefundTransaction r:return await AddTransaction(r);
-                case SharedBillTransaction s:return await AddTransaction(s);
-                default: 
-                    throw new ArgumentOutOfRangeException(nameof(transaction),"Unknown transaction type");
+                case TransferTransaction t: return await AddTransaction(t);
+                case LoanTransaction l: return await AddTransaction(l);
+                case PaidForFriendTransaction p: return await AddTransaction(p);
+                case RefundTransaction r: return await AddTransaction(r);
+                case SharedBillTransaction s: return await AddTransaction(s);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(transaction), "Unknown transaction type");
             }
         }
 
         private async Task<T> AddTransaction<T>(Transaction transaction,
-            Action<IRestRequest> additionalInit = null,Func<RawTransaction,T> customTransactionBuilder=null)
+            Action<IRestRequest> additionalInit = null, Func<RawTransaction, T> customTransactionBuilder = null)
         {
             var builder = CreateRequestBuilder("add_transaction", Method.POST);
             var request = builder.Request;
             AddCreationRequest(request, transaction);
             additionalInit?.Invoke(request);
-            if(customTransactionBuilder==null)
+            if (customTransactionBuilder == null)
                 return await ExecuteRequestAsync<T>(request);
 
             var rawTransaction = await ExecuteRequestAsync<RawTransaction>(request);
@@ -143,13 +144,13 @@ namespace Buxfer.Client
         }
 
         /// <summary>
-        ///     Adds expense transaction 
+        ///     Adds expense transaction
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
         public async Task<ExpenseTransaction> AddTransaction(ExpenseTransaction transaction)
         {
-            return await AddTransaction<ExpenseTransaction>(transaction, null);
+            return await AddTransaction<ExpenseTransaction>(transaction);
         }
 
         /// <summary>
@@ -159,7 +160,7 @@ namespace Buxfer.Client
         /// <returns>Transaction creation status</returns>
         public async Task<IncomeTransaction> AddTransaction(IncomeTransaction transaction)
         {
-            return await AddTransaction<IncomeTransaction>(transaction, null);
+            return await AddTransaction<IncomeTransaction>(transaction);
         }
 
         /// <summary>
@@ -173,7 +174,7 @@ namespace Buxfer.Client
             {
                 b.AddIfNotZero("fromAccountId", transaction.FromAccountId);
                 b.AddIfNotZero("toAccountId", transaction.ToAccountId);
-            },raw => raw.ToTransfer());
+            }, raw => raw.ToTransfer());
         }
 
         /// <summary>
@@ -183,7 +184,7 @@ namespace Buxfer.Client
         /// <returns>Transaction creation status</returns>
         public async Task<Transaction> AddTransaction(RefundTransaction transaction)
         {
-            return await AddTransaction<Transaction>(transaction, null);
+            return await AddTransaction<Transaction>(transaction);
         }
 
         /// <summary>
@@ -309,7 +310,7 @@ namespace Buxfer.Client
 
         /// <summary>
         ///     Gets raw transactions representations, as it is returned from the API.
-        /// Can contain some duplicate or additional info fields
+        ///     Can contain some duplicate or additional info fields
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <returns>The transactions.</returns>
@@ -319,7 +320,8 @@ namespace Buxfer.Client
             filter?.Invoke(transactionFilter);
             return await GetRawTransactions(transactionFilter);
         }
-        public async Task<FilterResult<RawTransaction>> GetRawTransactions(TransactionFilter filter=null)
+
+        public async Task<FilterResult<RawTransaction>> GetRawTransactions(TransactionFilter filter = null)
         {
             var response = await ExecuteGetAsync<RawTransactionResponse>("transactions", filter);
             return new FilterResult<RawTransaction>(response.Transactions, response.NumTransactions);

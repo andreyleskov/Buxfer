@@ -1,6 +1,6 @@
-namespace Buxfer.Client
+namespace Buxfer.Client.Transactions
 {
-    public class RefundTransaction:Transaction
+    public class RefundTransaction : Transaction
     {
         public RefundTransaction()
         {

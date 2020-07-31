@@ -6,12 +6,13 @@ namespace Buxfer.Client.Tests.Web
     {
         public static BuxferClient BuildClient(SecretSettings settings, ILogger logger = null)
         {
-            logger ??= LoggerFactory.Create(c => c.AddConsole().SetMinimumLevel(LogLevel.Trace)).CreateLogger<AuthTest>();
-            
-            if(string.IsNullOrEmpty(settings.APIToken))
-                 return new BuxferClient(settings.UserId, settings.Password, logger);
-            
-            return new BuxferClient(settings.APIToken,logger);
+            logger ??= LoggerFactory.Create(c => c.AddConsole().SetMinimumLevel(LogLevel.Trace))
+                .CreateLogger<AuthTest>();
+
+            if (string.IsNullOrEmpty(settings.APIToken))
+                return new BuxferClient(settings.UserId, settings.Password, logger);
+
+            return new BuxferClient(settings.APIToken, logger);
         }
 
         public static BuxferClient BuildClient(out SecretSettings setting, ILogger logger = null)

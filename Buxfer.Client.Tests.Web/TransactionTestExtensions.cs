@@ -16,7 +16,8 @@ namespace Buxfer.Client.Tests.Web
             createdTransaction.sortDate.Should().Be(transaction.Date.Date);
             createdTransaction.isPending.Should().Be(false);
             createdTransaction.isFutureDated.Should().Be(false);
-        } 
+        }
+
         public static void ShouldBeLike(this Transaction createdTransaction, Transaction transaction)
         {
             createdTransaction.Id.Should().BePositive();

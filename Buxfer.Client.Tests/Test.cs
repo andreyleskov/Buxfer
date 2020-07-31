@@ -78,7 +78,7 @@ namespace Buxfer.Client.Tests
         public void SerializeToSmsText_TransactionWithAllData_TextWithAllData()
         {
             var transaction = CreateValidTransaction();
-            transaction.TagNames.AddRange(new[]{"tagOne","tagTwo","tagTrês"});
+            transaction.TagNames.AddRange(new[] {"tagOne", "tagTwo", "tagTrês"});
             transaction.AccountName = "Bancão";
             transaction.Date = new DateTime(2015, 6, 22, 0, 0, 0, DateTimeKind.Utc);
             transaction.Status = TransactionStatus.Pending;
@@ -131,7 +131,7 @@ namespace Buxfer.Client.Tests
         public void SerializeToSmsText_TransactionWithTags_TextWithTags()
         {
             var transaction = CreateValidTransaction();
-            transaction.TagNames.AddRange(new[]{"tagOne","tagTwo","tagTrês"});
+            transaction.TagNames.AddRange(new[] {"tagOne", "tagTwo", "tagTrês"});
             var target = new TransactionSerializer(transaction);
             var actual = target.SerializeToSmsText();
 

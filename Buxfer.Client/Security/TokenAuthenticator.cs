@@ -12,10 +12,10 @@ namespace Buxfer.Client.Security
     public class TokenAuthenticator : ITokenAuthenticator
     {
         private readonly ILogger _logger;
-        private readonly Func<string, Method, IRestRequest> m_createRequest;
-        private readonly Func<IRestRequest, Task<LoginResponse>> m_executeRequest;
         private readonly string _password;
         private readonly string _userId;
+        private readonly Func<string, Method, IRestRequest> m_createRequest;
+        private readonly Func<IRestRequest, Task<LoginResponse>> m_executeRequest;
 
 
         /// <summary>

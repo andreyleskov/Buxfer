@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Buxfer.Client.Responses.AddTransactionResponses
 {
-    public class CreatedTransferTransaction
+    public class GetTransationsObject
     {
         public int id { get; set; }
         public string description { get; set; }

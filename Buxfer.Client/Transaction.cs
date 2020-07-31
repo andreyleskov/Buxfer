@@ -17,7 +17,9 @@ namespace Buxfer.Client
     public class Transaction //: EntityBase
     {
         #region Properties
+
         public int Id { get; set; }
+
         /// <summary>
         ///     Gets or sets the account identifier.
         /// </summary>
@@ -74,9 +76,9 @@ namespace Buxfer.Client
         /// <value>
         ///     The tag names.
         /// </value>
-        public List<string> TagNames { get; set; }=new List<string>();
+        public List<string> TagNames { get; set; } = new List<string>();
 
-        public string Tags => String.Join(",", TagNames);
+        public string Tags => string.Join(",", TagNames);
 
         /// <summary>
         ///     Gets or sets the extra information.
@@ -93,7 +95,7 @@ namespace Buxfer.Client
         ///     The status.
         /// </value>
         public TransactionStatus Status { get; set; }
-        
+
         public bool IsPending { get; set; }
 
         #endregion

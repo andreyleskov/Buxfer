@@ -1,10 +1,10 @@
-namespace Buxfer.Client
+namespace Buxfer.Client.Transactions
 {
-    public class IncomeTransaction:Transaction
+    public class IncomeTransaction : Transaction
     {
         public IncomeTransaction()
         {
-            Type= TransactionType.Income;
+            Type = TransactionType.Income;
         }
     }
 }

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Buxfer.Client.Responses.AddTransactionResponses
 {
-    public class CreatedTransferTransaction
+    public class CreatedExpenseTransaction
     {
         public int id { get; set; }
         public string description { get; set; }
@@ -21,6 +21,5 @@ namespace Buxfer.Client.Responses.AddTransactionResponses
         public bool isFutureDated { get; set; }
         public bool isPending { get; set; }
         public string sortDate { get; set; }
-        public AccountInfo fromAccount { get; set; }
     }
 }

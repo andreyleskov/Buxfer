@@ -21,20 +21,6 @@ namespace Buxfer.Client.Tests.Web
         }
 
         [Test]
-        public async Task Login_withAPITokenWorks()
-        {
-            var logger = LoggerFactory.Create(c => c.AddConsole()).CreateLogger<AuthTest>();
-
-            var apiToken = SecretManager.LoadSettings().APIToken;
-            var target = new BuxferClient(apiToken, logger);
-            var token = await target.Login();
-            token.Should().Be(apiToken);
-            
-            Assert.IsTrue(target.Authenticated);
-            
-        }
- 
-        [Test]
         [Category("Password")]
         public async Task Login_ValidCredentials_Authenticated_And_returns_Token()
         {
@@ -44,6 +30,19 @@ namespace Buxfer.Client.Tests.Web
             var token = await target.Login();
             Console.WriteLine($"token is {token}");
             Assert.NotNull(token);
+            Assert.IsTrue(target.Authenticated);
+        }
+
+        [Test]
+        public async Task Login_withAPITokenWorks()
+        {
+            var logger = LoggerFactory.Create(c => c.AddConsole()).CreateLogger<AuthTest>();
+
+            var apiToken = SecretManager.LoadSettings().APIToken;
+            var target = new BuxferClient(apiToken, logger);
+            var token = await target.Login();
+            token.Should().Be(apiToken);
+
             Assert.IsTrue(target.Authenticated);
         }
     }

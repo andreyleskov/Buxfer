@@ -61,10 +61,10 @@ namespace Buxfer.Client.Serialization
 
         private void AddTags()
         {
-            if (m_transaction.TagNames?.Any()==true)
+            if (m_transaction.TagNames?.Any() == true)
                 m_builder.AppendFormat(
                     " tags:{0}",
-                    string.Join(",",m_transaction.TagNames));
+                    string.Join(",", m_transaction.TagNames));
         }
 
         private void AddAccount()

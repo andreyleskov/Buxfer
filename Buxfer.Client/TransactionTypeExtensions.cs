@@ -8,7 +8,7 @@ namespace Buxfer.Client
         {
             switch (type)
             {
-                case TransactionType.Expense:return "expense";
+                case TransactionType.Expense: return "expense";
                 case TransactionType.Income: return "income";
                 case TransactionType.Transfer: return "transfer";
                 case TransactionType.Refund: return "refund";
