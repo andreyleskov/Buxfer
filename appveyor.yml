@@ -18,10 +18,11 @@ install:
 - ps: Update-AppveyorBuild -Version $env:APP_VERSION
 build_script:
 - sh: |
-    #cd ./src
+
     dotnet build Buxfer.sln /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet
+    dotnet test --filter FullyQualifiedName\!~Buxfer.Client.Tests.Web.Login_ValidCredentials_Authenticated_And_returns_Token
     dotnet pack Buxfer.sln -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -p:PackageVersion=$APP_VERSION /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet  --no-build
-    #cd ..
+
 test_script:
 - sh: |
     #curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -

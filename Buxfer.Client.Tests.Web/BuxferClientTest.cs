@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
@@ -20,6 +21,20 @@ namespace Buxfer.Client.Tests.Web
         }
 
         [Test]
+        public async Task Login_withAPITokenWorks()
+        {
+            var logger = LoggerFactory.Create(c => c.AddConsole()).CreateLogger<AuthTest>();
+
+            var apiToken = SecretManager.LoadSettings().APIToken;
+            var target = new BuxferClient(apiToken, logger);
+            var token = await target.Login();
+            token.Should().Be(apiToken);
+            
+            Assert.IsTrue(target.Authenticated);
+            
+        }
+ 
+        [Test]
         public async Task Login_ValidCredentials_Authenticated_And_returns_Token()
         {
             var logger = LoggerFactory.Create(c => c.AddConsole()).CreateLogger<AuthTest>();
@@ -30,6 +45,5 @@ namespace Buxfer.Client.Tests.Web
             Assert.NotNull(token);
             Assert.IsTrue(target.Authenticated);
         }
-        
     }
 }

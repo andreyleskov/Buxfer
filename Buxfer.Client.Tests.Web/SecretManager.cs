@@ -8,7 +8,7 @@ namespace Buxfer.Client.Tests.Web
         public static SecretSettings LoadSettings()
         {
             var configuration = new ConfigurationBuilder()
-                //.AddUserSecrets<SecretSettings>()
+                .AddUserSecrets<SecretSettings>()
                 .AddEnvironmentVariables(s=>s.Prefix=EnvironmentVariablePrefix)
                 .Build();
 
@@ -22,7 +22,8 @@ namespace Buxfer.Client.Tests.Web
                 || String.IsNullOrEmpty(settings.TagId)
                 || String.IsNullOrEmpty(settings.TagName))
                 throw new InvalidOperationException(
-                    "You'll need to define some user secrets before run BuxferSharp.FunctionalTests: UserId, Password, AccountId, AccountName, TagId and TagName.");
+                    $"You'll need to define some user secrets before run Buxfer web tests or environment variables with prefix {EnvironmentVariablePrefix}: " +
+                    $"UserId, Password, AccountId, AccountName, TagId and TagName.");
 
             return settings;
         }
