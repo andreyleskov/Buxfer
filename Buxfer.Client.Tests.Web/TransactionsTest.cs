@@ -171,10 +171,10 @@ namespace Buxfer.Client.Tests.Web
             var createdTransaction = await target.AddTransaction(transaction);
             createdTransaction.ShouldBeLike(transaction);
             
-            createdTransaction.amount.Should().Be(transaction.Amount);
-            createdTransaction.accountId.Should().Be(createdTransaction.accountId);
+            createdTransaction.Amount.Should().Be(transaction.Amount);
+            createdTransaction.AccountId.Should().Be(createdTransaction.AccountId);
 
-            var loadedTransaction = await Load<RefundTransaction>(target, createdTransaction.id, transaction.TagNames.First());
+            var loadedTransaction = await Load<RefundTransaction>(target, createdTransaction.Id, transaction.TagNames.First());
             loadedTransaction.ShouldBeLike(transaction);
         }
         
@@ -203,7 +203,7 @@ namespace Buxfer.Client.Tests.Web
                 Date = DateTime.Now.AddYears(1)
             };
 
-            var actual = await target.AddTransaction(transaction);
+            var actual = await target.AddTransactionAsSms(transaction);
             Assert.IsTrue(actual);
 
             var filter = new TransactionFilter

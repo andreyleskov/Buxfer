@@ -95,13 +95,13 @@ namespace Buxfer.Client
         #region Methods
 
         /// <summary>
-        ///     Adds expense or income transaction.
-        ///     Use an overload with creation request instead
+        ///     Adds expense or income transaction via sms API
+        ///     Use an overload with creation request instead as sms API is not well-covered in oficcial API specs
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>True if transaction was added.</returns>
         [Obsolete]
-        public async Task<bool> AddTransaction(Transaction transaction)
+        public async Task<bool> AddTransactionAsSms(Transaction transaction)
         {
             var serializer = new TransactionSerializer(transaction);
             var builder = CreateRequestBuilder("add_transaction", Method.POST);
@@ -111,6 +111,21 @@ namespace Buxfer.Client
 
             var executeRequestAsync = await ExecuteRequestAsync<AddTransactionResponse>(request);
             return executeRequestAsync.TransactionAdded;
+        }
+        public async Task<Transaction> AddTransaction(Transaction transaction)
+        {
+            switch (transaction)
+            {
+                case ExpenseTransaction e: return await AddTransaction(e);
+                case IncomeTransaction i: return await AddTransaction(i);
+                case TransferTransaction t:return await AddTransaction(t);
+                case LoanTransaction l:return await AddTransaction(l);
+                case PaidForFriendTransaction p:return await AddTransaction(p);
+                case RefundTransaction r:return await AddTransaction(r);
+                case SharedBillTransaction s:return await AddTransaction(s);
+                default: 
+                    throw new ArgumentOutOfRangeException(nameof(transaction),"Unknown transaction type");
+            }
         }
 
         private async Task<T> AddTransaction<T>(Transaction transaction,
@@ -154,7 +169,7 @@ namespace Buxfer.Client
         /// <returns>Transaction creation status</returns>
         public async Task<TransferTransaction> AddTransaction(TransferTransaction transaction)
         {
-            return await AddTransaction<TransferTransaction>(transaction, b =>
+            return await AddTransaction(transaction, b =>
             {
                 b.AddIfNotZero("fromAccountId", transaction.FromAccountId);
                 b.AddIfNotZero("toAccountId", transaction.ToAccountId);
@@ -166,9 +181,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<RawTransaction> AddTransaction(RefundTransaction transaction)
+        public async Task<Transaction> AddTransaction(RefundTransaction transaction)
         {
-            return await AddTransaction<RawTransaction>(transaction, null);
+            return await AddTransaction<Transaction>(transaction, null);
         }
 
         /// <summary>
@@ -176,9 +191,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<RawTransaction> AddTransaction(LoanTransaction transaction)
+        public async Task<Transaction> AddTransaction(LoanTransaction transaction)
         {
-            return await AddTransaction<RawTransaction>(transaction, r =>
+            return await AddTransaction<Transaction>(transaction, r =>
             {
                 r.AddIfNotEmpty("borrowedBy", transaction.BorrowedBy);
                 r.AddIfNotEmpty("loanedBy", transaction.LoanedBy);
@@ -190,9 +205,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<RawTransaction> AddTransaction(SharedBillTransaction transaction)
+        public async Task<Transaction> AddTransaction(SharedBillTransaction transaction)
         {
-            return await AddTransaction<RawTransaction>(transaction, r =>
+            return await AddTransaction<Transaction>(transaction, r =>
             {
                 r.AddIfNotEmpty("payers", transaction.Payers);
                 r.AddIfNotEmpty("sharers", transaction.Sharers);
@@ -205,9 +220,9 @@ namespace Buxfer.Client
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <returns>Transaction creation status</returns>
-        public async Task<RawTransaction> AddTransaction(PaidForFriendTransaction transaction)
+        public async Task<Transaction> AddTransaction(PaidForFriendTransaction transaction)
         {
-            return await AddTransaction<RawTransaction>(transaction, r =>
+            return await AddTransaction<Transaction>(transaction, r =>
             {
                 r.AddIfNotEmpty("paidFor", transaction.PaidFor);
                 r.AddIfNotEmpty("paidBy", transaction.PaidBy);
