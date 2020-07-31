@@ -51,6 +51,7 @@ namespace Buxfer.Client.Tests.Web
     {
 
         [Test]
+        [Ignore("Not secure")]
         public void PrintEnvSettings()
         {
             var envLoadedSettings = SecretManager.LoadSettings();

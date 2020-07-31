@@ -1,38 +1,27 @@
 version: 1.0.{build}
-branches:
-  only:
-  - develop
 image: Ubuntu
 install:
-- sh: |
+- sh: >-
     . ./git_versioning.sh
 
-    export APP_VERSION=${version}
-    export FILE_VERSION=${fileVersion}
-    export INFORMATIONAL_VERSION=${informationVersion}
+        export APP_VERSION=${version}
+        export FILE_VERSION=${fileVersion}
+        export INFORMATIONAL_VERSION=${informationVersion}
 
-    echo "exported app version is $APP_VERSION"
-    echo "exported file version is $FILE_VERSION"
-    echo "exported info version is $INFORMATIONAL_VERSION"
-
-- ps: Update-AppveyorBuild -Version $env:APP_VERSION
+        echo "exported app version is $APP_VERSION"
+        echo "exported file version is $FILE_VERSION"
+        echo "exported info version is $INFORMATIONAL_VERSION"
 build_script:
-- sh: |
-
+- sh: >-
     dotnet build Buxfer.sln /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet
-    dotnet test --filter FullyQualifiedName\!~Buxfer.Client.Tests.Web.Login_ValidCredentials_Authenticated_And_returns_Token --test-adapter-path:. --logger:nunit
     dotnet pack Buxfer.sln -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -p:PackageVersion=$APP_VERSION /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet  --no-build
-
 test_script:
-- sh: |
-    #curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
-    #cd ./test
-    #./test.sh
+- sh: dotnet test --filter FullyQualifiedName\!~Login_ValidCredentials_Authenticated_And_returns_Token --logger:Appveyor
 artifacts:
 - path: '**\Buxfer.*.nupkg'
   name: Packages
 - path: '**\Buxfer.*.snupkg'
   name: Symbols
 deploy:
-  - provider: Environment
-    name: nuget.org
+- provider: Environment
+  name: nuget.org
