@@ -4,6 +4,7 @@ using System.Linq;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace Buxfer.Client.Tests.Web
@@ -36,6 +37,16 @@ namespace Buxfer.Client.Tests.Web
 
     public class SecretsManagerTests
     {
+
+        [Test]
+        public void PrintEnvSettings()
+        {
+            var envLoadedSettings = SecretManager.LoadSettings();
+            var stringSettings = JsonConvert.SerializeObject(envLoadedSettings);
+            Console.WriteLine("Loaded secret settings");
+            Console.WriteLine(stringSettings);
+        }
+        
         [Test]
         public void Given_env_Variables_When_building_secrets_Then_variables_are_fetched()
         {
@@ -85,4 +96,5 @@ namespace Buxfer.Client.Tests.Web
                 async () => { await target.GetTransactions(); });
         }
     }
+    
 }
