@@ -35,6 +35,7 @@ namespace Buxfer.Client.Tests.Web
         }
  
         [Test]
+        [Category("Password")]
         public async Task Login_ValidCredentials_Authenticated_And_returns_Token()
         {
             var logger = LoggerFactory.Create(c => c.AddConsole()).CreateLogger<AuthTest>();
