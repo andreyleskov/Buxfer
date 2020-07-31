@@ -28,6 +28,6 @@ namespace Buxfer.Client.Tests.Web
             return settings;
         }
 
-        public static string EnvironmentVariablePrefix { get; } = "Buxfer.Client.Tests.Web.";
+        public static string EnvironmentVariablePrefix { get; } = "Buxfer_Client_Tests_Web_";
     }
 }
