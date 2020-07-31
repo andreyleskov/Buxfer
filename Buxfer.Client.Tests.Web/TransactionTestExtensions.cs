@@ -22,7 +22,7 @@ namespace Buxfer.Client.Tests.Web
             createdTransaction.Id.Should().BePositive();
             createdTransaction.Amount.Should().Be(transaction.Amount);
             createdTransaction.Description.Should().Be(transaction.Description);
-            createdTransaction.Tags.Should().Be(transaction.Tags ?? "");
+            createdTransaction.TagNames.Should().BeEquivalentTo(transaction.TagNames);
             createdTransaction.Type.Should().Be(transaction.Type);
             createdTransaction.IsPending.Should().Be(false);
         }

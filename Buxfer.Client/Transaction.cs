@@ -74,7 +74,6 @@ namespace Buxfer.Client
         /// <value>
         ///     The tag names.
         /// </value>
-        /// TODO: convert to tags list
         public List<string> TagNames { get; set; }=new List<string>();
 
         public string Tags => String.Join(",", TagNames);

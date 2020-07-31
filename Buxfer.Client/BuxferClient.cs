@@ -28,7 +28,6 @@ namespace Buxfer.Client
         /// <param name="userId">The user identifier.</param>
         /// <param name="password">The password.</param>
         /// <param name="logger">The logger. Could be ignored to disable any log output</param>
-        /// TODO: rework authentication
         public BuxferClient(string userName, string password, ILogger logger = null)
         {
             _logger = logger ?? new NullLogger<BuxferClient>();
@@ -215,7 +214,6 @@ namespace Buxfer.Client
             });
         }
 
-
         private void AddCreationRequest(IRestRequest request, Transaction transaction)
         {
             request.AddIfNotEmpty("description", transaction.Description);
@@ -278,15 +276,16 @@ namespace Buxfer.Client
         }
 
         /// <summary>
-        ///     Gets the transactions.
+        ///     Gets raw transactions representations, as it is returned from the API.
+        /// Can contain some duplicate or additional info fields
         /// </summary>
         /// <param name="filter">The filter.</param>
         /// <returns>The transactions.</returns>
-        public async Task<FilterResult<RawTransaction>> GetExtendedTransactions(Action<TransactionFilter> filter)
+        public async Task<FilterResult<RawTransaction>> GetRawTransactions(Action<TransactionFilter> filter=null)
         {
             var transactionFilter = new TransactionFilter();
-            filter(transactionFilter);
-            var response = await ExecuteGetAsync<ExtendedTransactionResponse>("transactions", filter);
+            filter?.Invoke(transactionFilter);
+            var response = await ExecuteGetAsync<RawTransactionResponse>("transactions", filter);
             return new FilterResult<RawTransaction>(response.Transactions, response.NumTransactions);
         }
 

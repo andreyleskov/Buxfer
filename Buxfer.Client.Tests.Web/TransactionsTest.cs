@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Buxfer.Client.Responses;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace Buxfer.Client.Tests.Web
@@ -12,8 +11,12 @@ namespace Buxfer.Client.Tests.Web
     [Category("Transactions")]
     public class TransactionsTest
     {
-        private const string BuxferClientAutoTestsTag = "Buxfer.Client auto tests";
+        private string BuxferClientAutoTestsTag;
 
+        public TransactionsTest()
+        {
+            BuxferClientAutoTestsTag = SecretManager.LoadSettings().TagName;
+        }
         [Test]
         public async Task Given_expense_When_add_it_Then_it_is_recorded()
         {
@@ -32,13 +35,13 @@ namespace Buxfer.Client.Tests.Web
             
             createdTransaction.AccountId.Should().Be(transaction.AccountId);
 
-            var loadedTransaction = await LoadByTagAndId(target, transaction.Tags, createdTransaction.Id);
+            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.Id, transaction.TagNames.First());
             loadedTransaction.ShouldBeLike(transaction);
         }
 
-        private static async Task<RawTransaction> LoadByTagAndId(BuxferClient target, string tags, int id)
+        private static async Task<RawTransaction> LoadByTagAndId(BuxferClient target, int id, string tag)
         {
-            var loadedTransactions = await target.GetExtendedTransactions(f => f.TagName = tags);
+            var loadedTransactions = await target.GetRawTransactions(f => f.TagName = tag);
             var loadedTransaction = loadedTransactions.Entities.Should()
                 .Contain(t => t.id == id).Subject;
             return loadedTransaction;
@@ -63,7 +66,7 @@ namespace Buxfer.Client.Tests.Web
             createdTransaction.Amount.Should().Be(transaction.Amount);
             createdTransaction.AccountId.Should().Be(transaction.AccountId);
 
-            var loadedTransaction = await LoadByTagAndId(target, transaction.Tags, createdTransaction.Id);
+            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.Id, transaction.Tags);
             loadedTransaction.ShouldBeLike(transaction);
         }
         [Test]
@@ -88,7 +91,7 @@ namespace Buxfer.Client.Tests.Web
             createdTransaction.ToAccountId.Should().Be(transaction.ToAccountId);
             createdTransaction.AccountId.Should().Be(0);
 
-            var loadedTransaction = await LoadByTagAndId(target, transaction.Tags, createdTransaction.Id);
+            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.Id, transaction.TagNames.First());
             loadedTransaction.ShouldBeLike(transaction);
         }
         
@@ -112,7 +115,7 @@ namespace Buxfer.Client.Tests.Web
             createdTransaction.AccountId.Should().Be(transaction.FromAccountId);
             createdTransaction.ToAccountId.Should().Be(0);
 
-            var loadedTransaction = await LoadByTagAndId(target, transaction.Tags, createdTransaction.Id);
+            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.Id, transaction.TagNames.First());
             loadedTransaction.ShouldBeLike(transaction);
         }
         [Test]
@@ -137,7 +140,7 @@ namespace Buxfer.Client.Tests.Web
             createdTransaction.AccountId.Should().Be(transaction.ToAccountId);
             createdTransaction.FromAccountId.Should().Be(0);
 
-            var loadedTransaction = await LoadByTagAndId(target, transaction.Tags, createdTransaction.Id);
+            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.Id, transaction.TagNames.First());
             loadedTransaction.ShouldBeLike(transaction);
         }
         [Test]
@@ -149,6 +152,7 @@ namespace Buxfer.Client.Tests.Web
                 Description = "Test refund transaction from Buxfer",
                 Amount = 6.0m,
                 Date = DateTime.Now,
+                AccountId = settings.AccountId
             };
             transaction.TagNames.Add(BuxferClientAutoTestsTag);
 
@@ -159,26 +163,22 @@ namespace Buxfer.Client.Tests.Web
             createdTransaction.amount.Should().Be(transaction.Amount);
             createdTransaction.accountId.Should().Be(createdTransaction.accountId);
 
-            var loadedTransaction = await LoadByTagAndId(target, transaction.Tags, createdTransaction.id);
+            var loadedTransaction = await LoadByTagAndId(target, createdTransaction.id, transaction.TagNames.First());
             loadedTransaction.ShouldBeLike(transaction);
         }
         
         [Test]
+        [Ignore("Cannot create such a transaction even in Buxfer UI ")]
         public async Task Given_paidForFriend_When_add_it_Then_it_is_accepted()
         {
             throw new NotImplementedException();
         }
         [Test]
+        [Ignore("Cannot create such a transaction even in Buxfer UI ")]
         public async Task Given_sharedBill_When_add_it_Then_it_is_accepted()
         {
             throw new NotImplementedException();
         }
-        [Test]
-        public async Task Given_malformed_expense_When_add_it_Then_receive_parse_error_response()
-        {
-            throw new NotImplementedException();
-        }
-        
        
         [Test]
         public async Task AddLegacy_Transaction_Transaction_Added()
@@ -274,6 +274,20 @@ namespace Buxfer.Client.Tests.Web
 
             Assert.IsNotNull(first.AccountId);
             Assert.AreNotEqual(1, first.Date.Year);
+        }
+        
+        [Test]
+        public async Task GetRawTransactions_NoArgs_Firts25Transactions()
+        {
+            var target = TestClientFactory.BuildClient();
+            var actual = await target.GetRawTransactions();
+            
+            Assert.AreNotEqual(0, actual.TotalCount);
+            Assert.AreNotEqual(0, actual.Entities.Count());
+            var first = actual.Entities[0];
+
+            Assert.IsNotNull(first.accountId);
+            Assert.AreNotEqual(1, first.date.Year);
         }
 
         [Test]
