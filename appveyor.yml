@@ -20,7 +20,7 @@ build_script:
 - sh: |
 
     dotnet build Buxfer.sln /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet
-    dotnet test --filter FullyQualifiedName\!~Buxfer.Client.Tests.Web.Login_ValidCredentials_Authenticated_And_returns_Token
+    dotnet test --filter FullyQualifiedName\!~Buxfer.Client.Tests.Web.Login_ValidCredentials_Authenticated_And_returns_Token --test-adapter-path:. --logger:nunit
     dotnet pack Buxfer.sln -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -p:PackageVersion=$APP_VERSION /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet  --no-build
 
 test_script:
