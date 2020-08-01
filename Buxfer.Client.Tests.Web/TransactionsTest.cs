@@ -31,7 +31,7 @@ namespace Buxfer.Client.Tests.Web
         {
             var loadedTransactions = await target.GetRawTransactions(f => f.TagName = tag);
             var loadedTransaction = loadedTransactions.Entities.Should()
-                .Contain(t => t.id == id).Subject;
+                .Contain(t => t.Id == id).Subject;
             return loadedTransaction;
         }
 
@@ -71,9 +71,8 @@ namespace Buxfer.Client.Tests.Web
             Assert.AreNotEqual(0, actual.TotalCount);
             Assert.AreNotEqual(0, actual.Entities.Count());
             var first = actual.Entities[0];
-
-            Assert.IsNotNull(first.accountId);
-            Assert.AreNotEqual(1, first.normalizedDate.Year);
+            Assert.IsNotNull(first.AccountId);
+            Assert.AreNotEqual(1, first.NormalizedDate.Year);
         }
 
         [Test]
@@ -157,8 +156,8 @@ namespace Buxfer.Client.Tests.Web
             var page1FirstTransaction = actual.Entities.First();
 
             filter.Page = 2;
-            actual = await target.GetTransactions(filter);
-            var page2FirstTransaction = actual.Entities.First();
+            var page2 = await target.GetTransactions(filter);
+            var page2FirstTransaction = page2.Entities.First();
 
             Assert.AreNotEqual(page1FirstTransaction.Id, page2FirstTransaction.Id);
         }

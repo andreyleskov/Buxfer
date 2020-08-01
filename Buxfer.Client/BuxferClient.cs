@@ -279,7 +279,7 @@ namespace Buxfer.Client
 
             var typedTransactions = response.Entities.Select(e =>
             {
-                switch (e.type)
+                switch (e.Type)
                 {
                     case TransactionType.Expense: return e.ToExpense();
                     case TransactionType.Income: return e.ToIncome();

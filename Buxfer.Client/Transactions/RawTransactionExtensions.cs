@@ -8,23 +8,23 @@ namespace Buxfer.Client.Transactions
         {
             return SetCommonFields(new TransferTransaction
             {
-                FromAccountId = raw.fromAccount?.Id ?? 0,
-                ToAccountId = raw.toAccount?.Id ?? 0
+                FromAccountId = raw.FromAccount?.Id ?? 0,
+                ToAccountId = raw.ToAccount?.Id ?? 0
             }, raw);
         }
 
         private static T SetCommonFields<T>(T t, RawTransaction raw) where T : Transaction
         {
-            t.AccountId = raw.accountId;
-            t.AccountName = raw.accountName;
-            t.Amount = raw.amount;
-            t.Date = raw.normalizedDate;
-            t.Description = raw.description;
-            t.Id = raw.id;
-            t.IsPending = raw.isPending;
-            t.Type = raw.type;
-            t.Status = raw.status;
-            t.TagNames = raw.tagNames;
+            t.AccountId = raw.AccountId;
+            t.AccountName = raw.AccountName;
+            t.Amount = raw.Amount;
+            t.Date = raw.NormalizedDate;
+            t.Description = raw.Description;
+            t.Id = raw.Id;
+            t.IsPending = raw.IsPending;
+            t.Type = raw.Type;
+            t.Status = raw.Status;
+            t.TagNames = raw.TagNames;
             return t;
         }
 

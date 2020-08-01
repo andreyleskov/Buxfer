@@ -41,7 +41,6 @@ namespace Buxfer.Client
         ///     The total count.
         /// </value>
         public long TotalCount { get; set; }
-
         /// <summary>
         ///     Gets the entities.
         /// </summary>
