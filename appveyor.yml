@@ -11,7 +11,7 @@ install:
         echo "exported app version is $APP_VERSION"
         echo "exported file version is $FILE_VERSION"
         echo "exported info version is $INFORMATIONAL_VERSION"
-- ps: Update-AppveyorBuild -Version $env:APP_VERSION
+- ps: Update-AppveyorBuild -Version "$env:APP_VERSION.$env:APPVEYOR_BUILD_NUMBER"
 build_script:
 - sh: >-
     dotnet build Buxfer.sln /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet
