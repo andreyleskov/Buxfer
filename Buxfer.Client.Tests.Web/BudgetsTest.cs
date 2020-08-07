@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Buxfer.Client.Tests.Web
@@ -14,14 +15,10 @@ namespace Buxfer.Client.Tests.Web
             var target = TestClientFactory.BuildClient();
             var budgets = await target.GetBudgets();
 
-            Assert.AreNotEqual(0, budgets.Count());
-            foreach (var budget in budgets)
-            {
-                Assert.IsNotNull(budget.Id);
-                Assert.IsNotNull(budget.Name);
-                Assert.IsNotNull(budget.Period);
-                Assert.AreEqual(budget.Balance, budget.Limit - budget.Spent);
-            }
+            budgets.Should().NotBeEmpty();
+            budgets.Select(b => b.Id).Should().OnlyContain(b => b > 0);
+            budgets.Select(b => b.Name).Should().OnlyContain(n => !string.IsNullOrEmpty(n));
+            budgets.Should().OnlyContain(b => b.Balance == b.Limit - b.Spent);
         }
     }
 }
