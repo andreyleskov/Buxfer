@@ -3,15 +3,6 @@ using System.Diagnostics;
 
 namespace Buxfer.Client
 {
-    public enum BudgetType
-    {
-        Expense=1,Income=2
-    }
-
-    public enum PeriodUnits
-    {
-        Week, Day, Year, Month, Custom, Never
-    }
     /// <summary>
     ///     Budgets let you control your expenses and plan your savings.
     ///     You can set weekly, monthly and yearly limits on specific expense categories, and receive alerts whenever you
