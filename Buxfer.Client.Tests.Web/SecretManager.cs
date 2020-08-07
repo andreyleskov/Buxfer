@@ -18,14 +18,14 @@ namespace Buxfer.Client.Tests.Web
             configuration.Bind(settings);
 
             if (string.IsNullOrEmpty(settings.UserId)
-                || string.IsNullOrEmpty(settings.Password)
+                || (string.IsNullOrEmpty(settings.Password) && string.IsNullOrEmpty(settings.APIToken))
                 || settings.AccountId == 0
                 || string.IsNullOrEmpty(settings.AccountName)
                 || string.IsNullOrEmpty(settings.TagId)
                 || string.IsNullOrEmpty(settings.TagName))
                 throw new InvalidOperationException(
                     $"You'll need to define some user secrets before run Buxfer web tests or environment variables with prefix {EnvironmentVariablePrefix}: " +
-                    "UserId, Password, AccountId, AccountName, TagId and TagName.");
+                    "UserId, Password or APIToken, AccountId, AccountName, TagId and TagName.");
 
             return settings;
         }

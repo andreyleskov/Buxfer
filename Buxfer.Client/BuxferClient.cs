@@ -59,6 +59,7 @@ namespace Buxfer.Client
             _restClient.AddHandler("application/x-javascript", () => new JsonDeserializer());
             _restClient.PreAuthenticate = true;
             _restClient.Authenticator = authenticator;
+            _restClient.FailOnDeserializationError = false;
             _authenticator = authenticator;
         }
 
@@ -421,10 +422,11 @@ namespace Buxfer.Client
         private async Task<TResponse> ExecuteRequestAsync<TResponse>(IRestRequest request)
         {
             var output = await _restClient.ExecuteAsync<Output<TResponse>>(request);
+            if (output.ErrorException != null) throw new BuxferException("An error occured during request. Response: "+output.Content,output.ErrorException);
+            if (output.Data?.Error != null)
+                throw new BuxferException("An error occured on server side:" + output.Data.Error.Message);
             if (output.StatusCode == HttpStatusCode.OK && output.Data != null) return output.Data.Response;
-            if (output.Data == null) throw new BuxferException(output.ErrorMessage);
-
-            throw new BuxferException(output.Data.Error.Message);
+            throw new BuxferException($"Unknown error. Status code: {output.StatusCode}. \r\n Parsed data: {output.Data}. \r\n Response: {output.Content}");
         }
 
         #endregion

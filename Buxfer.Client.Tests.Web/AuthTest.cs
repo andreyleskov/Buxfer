@@ -14,7 +14,7 @@ namespace Buxfer.Client.Tests.Web
             var target = new BuxferClient("andrey.lesk@gmail.com", "bk", logger);
 
             Assert.ThrowsAsync(Is.TypeOf<BuxferException>()
-                    .And.Message.EqualTo("Email or username does not match an existing account."),
+                    .And.Message.Contain("Email or username does not match an existing account."),
                 async () => { await target.GetTransactions(); });
         }
     }
