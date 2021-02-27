@@ -63,7 +63,7 @@ namespace Buxfer.Client.Tests.Web
         }
 
         [Test]
-        public async Task GetRawTransactions_NoArgs_Firts25Transactions()
+        public async Task GetRawTransactions_NoArgs_First25Transactions()
         {
             var target = TestClientFactory.BuildClient();
             var actual = await target.GetRawTransactions();
@@ -72,7 +72,8 @@ namespace Buxfer.Client.Tests.Web
             Assert.AreNotEqual(0, actual.Entities.Count());
             var first = actual.Entities[0];
             Assert.IsNotNull(first.AccountId);
-            Assert.AreNotEqual(1, first.NormalizedDate.Year);
+            DateTime.TryParse(first.Date, out var date).Should().BeTrue();
+            Assert.AreNotEqual(1, date.Year);
         }
 
         [Test]

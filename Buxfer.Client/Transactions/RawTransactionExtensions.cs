@@ -1,3 +1,5 @@
+using System;
+using System.Data.Common;
 using Buxfer.Client.Responses;
 
 namespace Buxfer.Client.Transactions
@@ -15,10 +17,15 @@ namespace Buxfer.Client.Transactions
 
         private static T SetCommonFields<T>(T t, RawTransaction raw) where T : Transaction
         {
+            if (!DateTime.TryParse(raw.Date, out var date))
+            {
+                throw new Exception($"Cannot parse transaction {raw.Id} date");
+            }
+            
             t.AccountId = raw.AccountId;
             t.AccountName = raw.AccountName;
             t.Amount = raw.Amount;
-            t.Date = raw.NormalizedDate;
+            t.Date = date;
             t.Description = raw.Description;
             t.Id = raw.Id;
             t.IsPending = raw.IsPending;
