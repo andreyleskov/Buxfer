@@ -18,7 +18,7 @@ build_script:
 
     dotnet pack Buxfer.sln -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -p:PackageVersion=$APP_VERSION /p:Version=$APP_VERSION /p:FileVersion=$FILE_VERSION /p:InformationVersion="$INFORMATIONAL_VERSION"  -c Release -v Quiet  --no-build
 test_script:
-- sh: dotnet test --filter FullyQualifiedName\!~Login_ValidCredentials_Authenticated_And_returns_Token --logger:Appveyor || 0
+- sh: dotnet test --filter FullyQualifiedName\!~Login_ValidCredentials_Authenticated_And_returns_Token --logger:Appveyor || true
 artifacts:
 - path: '**\Buxfer.*.nupkg'
   name: Packages
